@@ -18,13 +18,15 @@ function makeCubeModel(gl){
         3, 2, 6,   3, 6, 7,
     ];
 
-    /*console.log(vertices);
+    console.log(vertices);
     console.log(faceColors);
-    console.log(idxs);*/
+    console.log(idxs);
     
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+    console.log(positionBuffer);
     
     const colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);

@@ -49,6 +49,8 @@ function main() {
   // objects we'll be drawing.
   const modelInfo = makeCubeModel(gl);
 
+  console.log(modelInfo.posBuf);
+  console.log(modelInfo.indices);
   var then = 0;
 
   // Draw the scene repeatedly
@@ -134,7 +136,7 @@ function drawScene(gl, programInfo, modelInfo, deltaTime) {
     const normalize = false;
     const stride = 0;
     const offset = 0;
-    gl.bindBuffer(gl.ARRAY_BUFFER, modelInfo.posbuf);
+    gl.bindBuffer(gl.ARRAY_BUFFER, modelInfo.posBuf);
     gl.vertexAttribPointer(
         programInfo.attribLocations.aVertexPosition,
         numComponents,
