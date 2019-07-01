@@ -1,39 +1,27 @@
 class LeafModel {
     constructor(){}
 
-    render(gl, programInfo, transform, projectionMatrix){}
+    render(gl, programInfo, transform){}
 }
 
 class CubeModel extends LeafModel {
-    info;
-    modelViewMatrix;
     constructor(gl) {
         super();
         this.info = this.makeCubeModel(gl);
+        this.modelViewMatrix = mat4.create();
     }
 
-    render(gl, programInfo, rotateDelta, projectionMatrix){
-        // Set the drawing position to the "identity" point, which is
-        // the center of the scene.
-        this.modelViewMatrix = mat4.create();
-
-        const moveVec = vec3.create();
-        vec3.add();
-
+    render(gl, programInfo, transform){
         // Now move the drawing position a bit to where we want to
         // start drawing the square.
+        /*mat4.translate(this.modelViewMatrix,     // destination matrix
+                       this.modelViewMatrix,     // matrix to translate
+                       [-0.0, 0.0, -6.0]);  // amount to translate*/
 
-        mat4.translate(this.modelViewMatrix,     // destination matrix
-                        this.modelViewMatrix,     // matrix to translate
-                        [-0.0, 0.0, -6.0]);  // amount to translate
-        mat4.rotate(this.modelViewMatrix,  // destination matrix
-                    this.modelViewMatrix,  // matrix to rotate
-                    rotateDelta,     // amount to rotate in radians
-                    [0, 0, 1]);       // axis to rotate around (Z)
-        mat4.rotate(this.modelViewMatrix,  // destination matrix
-                    this.modelViewMatrix,  // matrix to rotate
-                    rotateDelta * .7,// amount to rotate in radians
-                    [0, 1, 0]);       // axis to rotate around (X)
+        /*mat4.rotate(this.modelViewMatrix,
+                    this.modelViewMatrix,
+                    Math.PI / 4,
+                    [0, 1, 0]);*/
 
         // Tell WebGL how to pull out the positions from the position
         // buffer into the vertexPosition attribute
@@ -87,7 +75,7 @@ class CubeModel extends LeafModel {
         gl.uniformMatrix4fv(
             programInfo.uniformLocations.uProjectionMatrix,
             false,
-            projectionMatrix);
+            transform);
         gl.uniformMatrix4fv(
             programInfo.uniformLocations.uModelViewMatrix,
             false,
@@ -99,6 +87,19 @@ class CubeModel extends LeafModel {
             const offset = 0;
             gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
         }
+    }
+
+    scaleBy(vec){
+        mat4.scale(this.modelViewMatrix,
+                   this.modelViewMatrix,
+                   vec);
+    }
+
+    rotateBy(rad, axisVec){
+        mat4.rotate(this.modelViewMatrix,
+                    this.modelViewMatrix,
+                    axisVec,
+                    rad);
     }
 
     makeCubeModel(gl){
@@ -151,9 +152,16 @@ class CubeModel extends LeafModel {
 }
 
 class CompoundModel extends LeafModel {
-    collection = [];
+    collection;
+    constructor(){
+        super();
+        this.collection = [];
+    }
 
-    addChild(child, transform){
+    addChild(child, translateVec){
+        mat4.translate(child.modelViewMatrix,
+                       child.modelViewMatrix,
+                       translateVec);
         this.collection.push(child);
     }
 
@@ -172,9 +180,34 @@ class CompoundModel extends LeafModel {
     }
 
     render(gl, prgInfo, transform){
-        for (let l of collection){
+        for (let l of this.collection){
             l.render(gl, prgInfo, transform);
         }
+    }
+}
+
+class Jack extends CompoundModel {
+    constructor(gl, translateVec){
+        super();
+
+        var xBar = new CubeModel(gl);
+        var yBar = new CubeModel(gl);
+        //var zBar = new CubeModel(gl);
+        
+        /*xBar.scaleBy([1, 0.1, 0.1]);
+        yBar.scaleBy([0.1, 1, 0.1]);
+        zBar.scaleBy([0.1, 0.1, 1]);*/
+        
+        xBar.scaleBy([1, 0.1, 1]);
+
+        yBar.scaleBy([1, 0.1, 1]);
+        yBar.rotateBy(Math.PI / 2, [0, 0, 1]);
+
+        //zBar.scaleBy([1, 0.1, 1]);
+        
+        super.addChild(xBar, translateVec);
+        super.addChild(yBar, translateVec);
+        //super.addChild(zBar, translateVec);
     }
 }
 

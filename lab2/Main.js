@@ -1,4 +1,4 @@
-//var cubeRotation = 0.0;
+var model;
 
 main();
 
@@ -45,23 +45,15 @@ function main() {
 
   // Here's where we call the routine that builds all the
   // objects we'll be drawing.
-  var model = new CubeModel(gl);
+  model = new Jack(gl, [0, 0, -6.0]);
 
-  // Draw the scene repeatedly
-  function doFrame(rotateDelta) {
-    rotateDelta *= 0.001;  // convert to seconds
-
-    drawScene(gl, programInfo, model, rotateDelta);
-
-    requestAnimationFrame(doFrame);
-  }
-  requestAnimationFrame(doFrame);
+  drawScene(gl, programInfo, model);
 }
 
 //
 // Draw the scene.
 //
-function drawScene(gl, programInfo, model, deltaTime) {
+function drawScene(gl, programInfo, model) {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
   gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -77,7 +69,6 @@ function drawScene(gl, programInfo, model, deltaTime) {
   // ratio that matches the display size of the canvas
   // and we only want to see objects between 0.1 units
   // and 100 units away from the camera.
-
   const fieldOfView = 45 * Math.PI / 180;   // in radians
   const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
   const zNear = 0.1;
@@ -92,5 +83,14 @@ function drawScene(gl, programInfo, model, deltaTime) {
                    zNear,
                    zFar);
 
-  model.render(gl, programInfo, deltaTime, projectionMatrix);
+  model.render(gl, programInfo, projectionMatrix);
 }
+
+/*document.addEventListener('keydown', (event) => {
+  if(event.keyCode == 37) {
+    model.moveXBy(-0.1);
+  }
+  else if(event.keyCode == 39) {
+    model.moveXBy(0.1);
+  }
+});*/
