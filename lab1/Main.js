@@ -22,13 +22,13 @@ function main() {
 
   const vsSource = `
     attribute vec4 aVertexPosition;
-    attribute vec4 aVertexColor;
+    attribute vec4 color;
     uniform mat4 uModelViewMatrix;
     uniform mat4 uProjectionMatrix;
     varying lowp vec4 vColor;
     void main(void) {
       gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-      vColor = aVertexColor;
+      vColor = color;
     }
   `;
 
@@ -42,15 +42,20 @@ function main() {
   `;
 
   // Initialize programInfo without outside module
-  const attNames = ['aVertexPosition','aVertexColor'], ufmNames = ['uModelViewMatrix','uProjectionMatrix'];
+  const attNames = ['aVertexPosition','color'], ufmNames = ['uModelViewMatrix','uProjectionMatrix'];
   const programInfo = makeShaderProgram(gl, vsSource, fsSource, attNames, ufmNames);
 
   // Here's where we call the routine that builds all the
   // objects we'll be drawing.
   const modelInfo = makeCubeModel(gl);
 
-  console.log(modelInfo.posBuf);
-  console.log(modelInfo.indices);
+  //var result = "";
+  for (var p in modelInfo.properties) {
+    //if (modelInfo.properties.hasOwnProperty(p)) {
+      console.log(modelInfo.properties[p].vals);
+    //} 
+  }
+
   var then = 0;
 
   // Draw the scene repeatedly
@@ -70,7 +75,6 @@ function main() {
 // Draw the scene.
 //
 function drawScene(gl, programInfo, modelInfo, deltaTime) {
-
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
   gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -150,7 +154,26 @@ function drawScene(gl, programInfo, modelInfo, deltaTime) {
 
   // Tell WebGL how to pull out the colors from the color buffer
   // into the vertexColor attribute.
-  {
+
+  for (var p in modelInfo.properties){
+    const numComponents = modelInfo.properties[p].numComponents;
+    const type = modelInfo.properties[p].type;
+    const normalize = false;
+    const stride = 0;
+    const offset = 0;
+    gl.bindBuffer(gl.ARRAY_BUFFER, modelInfo.properties[p].buf);
+    gl.vertexAttribPointer(
+        programInfo.attribLocations[p],
+        numComponents,
+        type,
+        normalize,
+        stride,
+        offset);
+    gl.enableVertexAttribArray(
+        programInfo.attribLocations[p]);
+  }
+
+  /*{
     const numComponents = modelInfo.properties.color.numComponents;
     const type = modelInfo.properties.color.type;
     const normalize = false;
@@ -166,7 +189,7 @@ function drawScene(gl, programInfo, modelInfo, deltaTime) {
         offset);
     gl.enableVertexAttribArray(
         programInfo.attribLocations.aVertexColor);
-  }
+  }*/
 
   // Tell WebGL which indices to use to index the vertices
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, modelInfo.indexBuf);
