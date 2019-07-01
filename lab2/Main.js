@@ -1,6 +1,4 @@
-var cubeRotation = 0.0;
-var cubeTranslate = [0, 0, -6.0];
-var trAcc = 0;
+//var cubeRotation = 0.0;
 
 main();
 
@@ -47,26 +45,13 @@ function main() {
 
   // Here's where we call the routine that builds all the
   // objects we'll be drawing.
-  //const modelInfo = makeCubeModel(gl);
-
-  const modelInfo = new CubeModel(gl);
-
-  //var result = "";
-  for (var p in modelInfo.properties) {
-    //if (modelInfo.properties.hasOwnProperty(p)) {
-      console.log(modelInfo.properties[p].vals);
-    //} 
-  }
-
-  var then = 0;
+  var model = new CubeModel(gl);
 
   // Draw the scene repeatedly
-  function doFrame(now) {
-    now *= 0.001;  // convert to seconds
-    const deltaTime = now - then;
-    then = now;
+  function doFrame(rotateDelta) {
+    rotateDelta *= 0.001;  // convert to seconds
 
-    drawScene(gl, programInfo, modelInfo, deltaTime);
+    drawScene(gl, programInfo, model, rotateDelta);
 
     requestAnimationFrame(doFrame);
   }
@@ -76,7 +61,7 @@ function main() {
 //
 // Draw the scene.
 //
-function drawScene(gl, programInfo, modelInfo, deltaTime) {
+function drawScene(gl, programInfo, model, deltaTime) {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
   gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -107,118 +92,5 @@ function drawScene(gl, programInfo, modelInfo, deltaTime) {
                    zNear,
                    zFar);
 
-  // Set the drawing position to the "identity" point, which is
-  // the center of the scene.
-  const modelViewMatrix = mat4.create();
-
-  // Now move the drawing position a bit to where we want to
-  // start drawing the square.
-
-  mat4.translate(modelViewMatrix,     // destination matrix
-                 modelViewMatrix,     // matrix to translate
-                 //[-0.0, 0.0, -6.0]);  // amount to translate
-                 cubeTranslate);
-  /*mat4.rotate(modelViewMatrix,
-              modelViewMatrix,
-              1,
-              [0, 1, 0]);
-  mat4.scale(modelViewMatrix,
-             modelViewMatrix,
-             [1, 0.5, 1]);*/
-  mat4.rotate(modelViewMatrix,  // destination matrix
-              modelViewMatrix,  // matrix to rotate
-              cubeRotation,     // amount to rotate in radians
-              [0, 0, 1]);       // axis to rotate around (Z)
-  mat4.rotate(modelViewMatrix,  // destination matrix
-              modelViewMatrix,  // matrix to rotate
-              cubeRotation * .7,// amount to rotate in radians
-              [0, 1, 0]);       // axis to rotate around (X)
-
-  // Tell WebGL how to pull out the positions from the position
-  // buffer into the vertexPosition attribute
-  {
-    const numComponents = 3;
-    const type = gl.FLOAT;
-    const normalize = false;
-    const stride = 0;
-    const offset = 0;
-    gl.bindBuffer(gl.ARRAY_BUFFER, modelInfo.posBuf);
-    gl.vertexAttribPointer(
-        programInfo.attribLocations.aVertexPosition,
-        numComponents,
-        type,
-        normalize,
-        stride,
-        offset);
-    gl.enableVertexAttribArray(
-        programInfo.attribLocations.aVertexPosition);
-  }
-
-  // Tell WebGL how to pull out the colors from the color buffer
-  // into the vertexColor attribute.
-
-  for (var p in modelInfo.properties){
-    const numComponents = modelInfo.properties[p].numComponents;
-    const type = modelInfo.properties[p].type;
-    const normalize = false;
-    const stride = 0;
-    const offset = 0;
-    gl.bindBuffer(gl.ARRAY_BUFFER, modelInfo.properties[p].buf);
-    gl.vertexAttribPointer(
-        programInfo.attribLocations[p],
-        numComponents,
-        type,
-        normalize,
-        stride,
-        offset);
-    gl.enableVertexAttribArray(
-        programInfo.attribLocations[p]);
-  }
-
-  /*{
-    const numComponents = modelInfo.properties.color.numComponents;
-    const type = modelInfo.properties.color.type;
-    const normalize = false;
-    const stride = 0;
-    const offset = 0;
-    gl.bindBuffer(gl.ARRAY_BUFFER, modelInfo.properties.color.buf);
-    gl.vertexAttribPointer(
-        programInfo.attribLocations.aVertexColor,
-        numComponents,
-        type,
-        normalize,
-        stride,
-        offset);
-    gl.enableVertexAttribArray(
-        programInfo.attribLocations.aVertexColor);
-  }*/
-
-  // Tell WebGL which indices to use to index the vertices
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, modelInfo.indexBuf);
-
-  // Tell WebGL to use our program when drawing
-
-  gl.useProgram(programInfo.program);
-
-  // Set the shader uniforms
-
-  gl.uniformMatrix4fv(
-      programInfo.uniformLocations.uProjectionMatrix,
-      false,
-      projectionMatrix);
-  gl.uniformMatrix4fv(
-      programInfo.uniformLocations.uModelViewMatrix,
-      false,
-      modelViewMatrix);
-
-  {
-    const vertexCount = modelInfo.indices.length;
-    const type = gl.UNSIGNED_SHORT;
-    const offset = 0;
-    gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
-  }
-
-  // Update the rotation for the next draw
-
-  cubeRotation += deltaTime;
+  model.render(gl, programInfo, deltaTime, projectionMatrix);
 }

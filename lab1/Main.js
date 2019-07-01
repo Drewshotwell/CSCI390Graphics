@@ -1,7 +1,3 @@
-var cubeRotation = 0.0;
-var cubeTranslate = [0, 0, -6.0];
-var trAcc = 0;
-
 main();
 
 //
@@ -49,22 +45,11 @@ function main() {
   // objects we'll be drawing.
   const modelInfo = makeCubeModel(gl);
 
-  //var result = "";
-  for (var p in modelInfo.properties) {
-    //if (modelInfo.properties.hasOwnProperty(p)) {
-      console.log(modelInfo.properties[p].vals);
-    //} 
-  }
-
-  var then = 0;
-
   // Draw the scene repeatedly
-  function doFrame(now) {
-    now *= 0.001;  // convert to seconds
-    const deltaTime = now - then;
-    then = now;
+  function doFrame(rotateDelta) {
+    rotateDelta *= 0.001;  // convert to seconds
 
-    drawScene(gl, programInfo, modelInfo, deltaTime);
+    drawScene(gl, programInfo, modelInfo, rotateDelta);
 
     requestAnimationFrame(doFrame);
   }
@@ -74,7 +59,7 @@ function main() {
 //
 // Draw the scene.
 //
-function drawScene(gl, programInfo, modelInfo, deltaTime) {
+function drawScene(gl, programInfo, modelInfo, rotateDelta) {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
   gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -114,22 +99,14 @@ function drawScene(gl, programInfo, modelInfo, deltaTime) {
 
   mat4.translate(modelViewMatrix,     // destination matrix
                  modelViewMatrix,     // matrix to translate
-                 //[-0.0, 0.0, -6.0]);  // amount to translate
-                 cubeTranslate);
-  /*mat4.rotate(modelViewMatrix,
-              modelViewMatrix,
-              1,
-              [0, 1, 0]);
-  mat4.scale(modelViewMatrix,
-             modelViewMatrix,
-             [1, 0.5, 1]);*/
+                 [-0.0, 0.0, -6.0]);  // amount to translate
   mat4.rotate(modelViewMatrix,  // destination matrix
               modelViewMatrix,  // matrix to rotate
-              cubeRotation,     // amount to rotate in radians
+              rotateDelta,     // amount to rotate in radians
               [0, 0, 1]);       // axis to rotate around (Z)
   mat4.rotate(modelViewMatrix,  // destination matrix
               modelViewMatrix,  // matrix to rotate
-              cubeRotation * .7,// amount to rotate in radians
+              rotateDelta * .7,// amount to rotate in radians
               [0, 1, 0]);       // axis to rotate around (X)
 
   // Tell WebGL how to pull out the positions from the position
@@ -173,24 +150,6 @@ function drawScene(gl, programInfo, modelInfo, deltaTime) {
         programInfo.attribLocations[p]);
   }
 
-  /*{
-    const numComponents = modelInfo.properties.color.numComponents;
-    const type = modelInfo.properties.color.type;
-    const normalize = false;
-    const stride = 0;
-    const offset = 0;
-    gl.bindBuffer(gl.ARRAY_BUFFER, modelInfo.properties.color.buf);
-    gl.vertexAttribPointer(
-        programInfo.attribLocations.aVertexColor,
-        numComponents,
-        type,
-        normalize,
-        stride,
-        offset);
-    gl.enableVertexAttribArray(
-        programInfo.attribLocations.aVertexColor);
-  }*/
-
   // Tell WebGL which indices to use to index the vertices
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, modelInfo.indexBuf);
 
@@ -215,10 +174,4 @@ function drawScene(gl, programInfo, modelInfo, deltaTime) {
     const offset = 0;
     gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
   }
-
-  // Update the rotation for the next draw
-
-  cubeRotation += deltaTime;
-  trAcc += deltaTime;
-  cubeTranslate[0] = Math.sin(deltaTime);
 }
