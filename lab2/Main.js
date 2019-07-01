@@ -116,7 +116,7 @@ function drawScene(gl, programInfo, modelInfo, deltaTime) {
 
   mat4.translate(modelViewMatrix,     // destination matrix
                  modelViewMatrix,     // matrix to translate
-                 [-0.0, 0.0, -6.0]);  // amount to translate
+                 //[-0.0, 0.0, -6.0]);  // amount to translate
                  cubeTranslate);
   /*mat4.rotate(modelViewMatrix,
               modelViewMatrix,
