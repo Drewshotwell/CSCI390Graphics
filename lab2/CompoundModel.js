@@ -21,10 +21,10 @@ class CompoundModel {
         return this.collection[key];
     }
 
-    render(gl, prgInfo, transform){
+    render(gl, prgInfo, transform) {
         for (let leaf of this.collection){
             leaf.child.render(gl, prgInfo, 
-                mat4.multiply(leaf.transform, leaf.transform, transform));
+                mat4.multiply(mat4.create(), leaf.transform, transform));
         }
     }
 }
