@@ -4,9 +4,7 @@ class CompoundModel {
     }
 
     addChild(child, transform){
-        mat4.multiply(child.modelViewMatrix,
-                       child.modelViewMatrix,
-                       transform);
+        mat4.multiply(child.modelViewMatrix, child.modelViewMatrix, transform);
         this.collection.push(child);
     }
 
@@ -63,8 +61,8 @@ class Jack extends CompoundModel {
         mat4.scale(yTrans, yTrans, [0.1, 1, 0.1]);
         mat4.scale(zTrans, zTrans, [0.1, 0.1, 1]);*/
 
-        super.addChild(xBar, xTrans);
-        super.addChild(yBar, yTrans);
+        //super.addChild(xBar, xTrans);
+        //super.addChild(yBar, yTrans);
         super.addChild(zBar, zTrans);
     }
 }

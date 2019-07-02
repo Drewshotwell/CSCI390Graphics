@@ -94,7 +94,7 @@ function drawScene(gl, programInfo, model) {
     projectionMatrix);
   
   const cameraTransform = mat4.create();
-  mat4.translate(cameraTransform, cameraTransform, [0, 0, -6.0])
+  mat4.translate(cameraTransform, cameraTransform, [0, 0, -6.0]);
   model.render(gl, programInfo, cameraTransform);
 }
 
