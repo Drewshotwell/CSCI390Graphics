@@ -48,8 +48,6 @@ function main() {
   model = new Jack(gl);
   //model = new CubeModel(gl);
 
-  console.log()
-
   drawScene(gl, programInfo, model);
 }
 
