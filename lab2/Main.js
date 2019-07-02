@@ -1,4 +1,5 @@
 var model;
+var cameraTransform;
 
 main();
 
@@ -45,16 +46,51 @@ function main() {
 
   // Here's where we call the routine that builds all the
   // objects we'll be drawing.
-  model = new Jack(gl);
-  //model = new CubeModel(gl);
+  model = new JackStackAttack(gl);
 
-  drawScene(gl, programInfo, model);
+  cameraTransform = drawScene(gl, programInfo, model);
+
+  document.addEventListener('keydown', (event) => {
+    // Left 
+    if(event.keyCode == 37) {
+      console.log(mat4.str(cameraTransform));
+      mat4.translate(cameraTransform, mat4.create(), [1, 0, 0]);
+      cameraTransform = drawScene(gl, programInfo, model);
+      console.log(mat4.str(cameraTransform));
+    }
+    // Right
+    else if(event.keyCode == 39) {
+
+    }
+    // Up
+    else if(event.keyCode == 38) {
+
+    }
+    // Down
+    else if(event.keyCode == 40) {
+
+    }
+    // F -- Rotate C-Clockwise
+    else if(event.keyCode == 70) {
+
+    }
+    // G -- Rotate Clockwise
+    else if(event.keyCode == 71) {
+
+    }
+    //console.log(cameraTransform);
+  });
 }
 
 //
 // Draw the scene.
 //
 function drawScene(gl, programInfo, model) {
+  console.log("Hello");
+  console.log(gl);
+  console.log(programInfo);
+  console.log(model);
+
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
   gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -91,16 +127,11 @@ function drawScene(gl, programInfo, model) {
     false,
     projectionMatrix);
   
-  const cameraTransform = mat4.create();
-  mat4.translate(cameraTransform, cameraTransform, [0, 0, -6.0]);
+  if (!cameraTransform){
+    cameraTransform = mat4.create();
+  }
+  mat4.translate(cameraTransform, cameraTransform, [0, 0, -10.0]);
   model.render(gl, programInfo, cameraTransform);
-}
 
-/*document.addEventListener('keydown', (event) => {
-  if(event.keyCode == 37) {
-    model.moveXBy(-0.1);
-  }
-  else if(event.keyCode == 39) {
-    model.moveXBy(0.1);
-  }
-});*/
+  return cameraTransform;
+}
