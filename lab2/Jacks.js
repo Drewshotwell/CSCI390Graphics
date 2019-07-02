@@ -1,34 +1,3 @@
-class CompoundModel {
-    constructor(){
-        this.collection = [];
-    }
-
-    addChild(child, transform){
-        mat4.multiply(child.modelViewMatrix, child.modelViewMatrix, transform);
-        this.collection.push(child);
-    }
-
-    remove(leaf){
-        for (let i = 0; i < this.collection.length; i++){
-            if (this.collection[i] === leaf) {
-                this.collection.splice(i, 1);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    getChild(key){
-        return this.collection[key];
-    }
-
-    render(gl, prgInfo, transform){
-        for (let l of this.collection){
-            l.render(gl, prgInfo, transform);
-        }
-    }
-}
-
 class Jack extends CompoundModel {
     constructor(gl){
         super();
@@ -40,18 +9,14 @@ class Jack extends CompoundModel {
         const xTrans = mat4.create();
         const yTrans = mat4.create();
         const zTrans = mat4.create();
-
-        /*mat4.translate(xTrans, xTrans, translateVec);
-        mat4.translate(yTrans, yTrans, translateVec);
-        mat4.translate(zTrans, zTrans, translateVec);*/
         
         mat4.scale(xTrans, xTrans, [1, 0.1, 0.1]);
         
-        mat4.rotateZ(yTrans, yTrans, Math.PI / 2);
         mat4.scale(yTrans, yTrans, [1, 0.1, 0.1]);
+        mat4.rotateZ(yTrans, yTrans, Math.PI / 2);
         
-        mat4.rotateY(zTrans, zTrans, Math.PI / 2);
         mat4.scale(zTrans, zTrans, [1, 0.1, 0.1]);
+        mat4.rotateY(zTrans, zTrans, Math.PI / 2);
 
         /*const xTrans = mat4.create();
         const yTrans = mat4.create();

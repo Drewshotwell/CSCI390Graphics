@@ -18,14 +18,9 @@ class LeafModel {
         this.modelInfo['posBuf'] = positionBuffer;
         this.modelInfo['indexBuf'] = indexBuffer;
         this.modelInfo.properties.color['buf'] = colorBuffer;
-
-        this.modelViewMatrix = mat4.create();
     }
     
-    render(gl, programInfo, transform) {
-        // Now move the drawing position a bit to where we want to
-        mat4.multiply(this.modelViewMatrix, this.modelViewMatrix, transform);
-
+    render(gl, programInfo, modelViewMatrix) {
         // Tell WebGL how to pull out the positions from the position
         // buffer into the vertexPosition attribute
         {
@@ -76,7 +71,7 @@ class LeafModel {
         gl.uniformMatrix4fv(
             programInfo.uniformLocations.uModelViewMatrix,
             false,
-            this.modelViewMatrix);
+            modelViewMatrix);
 
         {
             const vertexCount = this.modelInfo.indices.length;
