@@ -1,5 +1,5 @@
 class LeafModel {
-    constructor(gl){
+    constructor(gl) {
         this.modelInfo = this.makeModel(gl);
 
         const positionBuffer = gl.createBuffer();

@@ -1,8 +1,4 @@
 class CubeModel extends LeafModel {
-    constructor(gl) {
-        super(gl);
-    }
-
     makeModel(gl){
         var vertices = [], vertexColors = [];
         for (var x = 1; x >= -1; x -= 2){
