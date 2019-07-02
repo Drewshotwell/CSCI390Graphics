@@ -43,7 +43,7 @@ class LeafModel {
 
         // Tell WebGL how to pull out the colors from the color buffer
         // into the vertexColor attribute.
-        for (var p in this.modelInfo.properties){
+        for (let p in this.modelInfo.properties){
             const numComponents = this.modelInfo.properties[p].numComponents;
             const type = this.modelInfo.properties[p].type;
             const normalize = false;
