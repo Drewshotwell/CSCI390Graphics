@@ -1,5 +1,6 @@
-var model;
 var cameraTransform;
+var theta = 0, phi = 0;
+var distToCamera = [0, 0, -10];
 
 main();
 
@@ -17,28 +18,17 @@ function main() {
     return;
   }
 
-  // Vertex shader program
+  function getSource(url) {
+    var req = new XMLHttpRequest();
 
-  const vsSource = `
-    attribute vec4 aVertexPosition;
-    attribute vec4 color;
-    uniform mat4 uModelViewMatrix;
-    uniform mat4 uProjectionMatrix;
-    varying lowp vec4 vColor;
-    void main(void) {
-      gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-      vColor = color;
-    }
-  `;
+    req.open("GET", url, false);
+    req.send(null);
+    
+    return (req.status == 200) ? req.responseText : null;
+  };
 
-  // Fragment shader program
-
-  const fsSource = `
-    varying lowp vec4 vColor;
-    void main(void) {
-      gl_FragColor = vColor;
-    }
-  `;
+  const vsSource = getSource('VtxShader.glsl');
+  const fsSource = getSource('FrgShader.glsl');
 
   // Initialize programInfo without outside module
   const attNames = ['aVertexPosition','color'], ufmNames = ['uModelViewMatrix','uProjectionMatrix'];
@@ -46,39 +36,41 @@ function main() {
 
   // Here's where we call the routine that builds all the
   // objects we'll be drawing.
-  model = new JackStackAttack(gl);
+  //model = new Jack(gl);
+  //model = new JackStack(gl, Math.PI);
+  const model = new JackStackAttack(gl);
 
-  cameraTransform = drawScene(gl, programInfo, model);
+  drawScene(gl, programInfo, model);
+
+
+  
 
   document.addEventListener('keydown', (event) => {
-    // Left 
+    // Left
     if(event.keyCode == 37) {
-      console.log(mat4.str(cameraTransform));
-      mat4.translate(cameraTransform, mat4.create(), [1, 0, 0]);
-      cameraTransform = drawScene(gl, programInfo, model);
-      console.log(mat4.str(cameraTransform));
+      theta += Math.PI / 10;
     }
     // Right
     else if(event.keyCode == 39) {
-
+      theta -= Math.PI / 10;
     }
     // Up
     else if(event.keyCode == 38) {
-
+      phi = phi < Math.PI / 2 ? phi + Math.PI / 10 : Math.PI / 2;
     }
     // Down
     else if(event.keyCode == 40) {
-
+      phi = phi > -Math.PI / 2 ? phi - Math.PI / 10 : -Math.PI / 2;
     }
-    // F -- Rotate C-Clockwise
+    // F -- Zoom forward
     else if(event.keyCode == 70) {
-
+      vec3.add(distToCamera, distToCamera, [0, 0, 1]);
     }
-    // G -- Rotate Clockwise
+    // G -- Zoom backward
     else if(event.keyCode == 71) {
-
+      vec3.add(distToCamera, distToCamera, [0, 0, -1]);
     }
-    //console.log(cameraTransform);
+    drawScene(gl, programInfo, model);
   });
 }
 
@@ -86,11 +78,6 @@ function main() {
 // Draw the scene.
 //
 function drawScene(gl, programInfo, model) {
-  console.log("Hello");
-  console.log(gl);
-  console.log(programInfo);
-  console.log(model);
-
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
   gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -126,11 +113,13 @@ function drawScene(gl, programInfo, model) {
     programInfo.uniformLocations.uProjectionMatrix,
     false,
     projectionMatrix);
+    
+  cameraTransform = mat4.create();
   
-  if (!cameraTransform){
-    cameraTransform = mat4.create();
-  }
-  mat4.translate(cameraTransform, cameraTransform, [0, 0, -10.0]);
+  mat4.translate(cameraTransform, cameraTransform, distToCamera);
+  mat4.rotateX(cameraTransform, cameraTransform, phi);
+  mat4.rotateY(cameraTransform, cameraTransform, theta);
+
   model.render(gl, programInfo, cameraTransform);
 
   return cameraTransform;

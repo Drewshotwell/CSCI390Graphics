@@ -1,9 +1,9 @@
 class CubeModel extends LeafModel {
     makeModel(gl){
         var vertices = [], vertexColors = [];
-        for (var x = 1; x >= -1; x -= 2){
+        for (var z = 1; z >= -1; z -= 2){
             for (var y = 1; y >= -1; y -= 2){
-                for (var z = 1; z >= -1; z -= 2){
+                for (var x = 1; x >= -1; x -= 2){
                     vertices.push(x, y, z);
                     vertexColors.push(...computeColor(x, y, z));
                 }

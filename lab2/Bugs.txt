@@ -1,0 +1,5 @@
+Add camera movement
+    Not entirely clear what the end result is to look like, since there are several different ways of rotating cameras. A supplied example would be nice.
+
+Factor Out Shader Source Code:
+    Make sure the source code is saved.
