@@ -36,12 +36,9 @@ function main() {
 
   // Here's where we call the routine that builds all the
   // objects we'll be drawing.
-  const model = new JackStackAttack(gl);
+  const model = new Cylinder(gl);
 
   drawScene(gl, programInfo, model);
-
-
-  
 
   document.addEventListener('keydown', (event) => {
     // Left
@@ -115,7 +112,7 @@ function drawScene(gl, programInfo, model) {
   cameraTransform = mat4.create();
   
   mat4.translate(cameraTransform, cameraTransform, distToCamera);
-  mat4.rotateX(cameraTransform, cameraTransform, -phi);
+  mat4.rotateX(cameraTransform, cameraTransform, phi);
   mat4.rotateY(cameraTransform, cameraTransform, theta);
 
   model.render(gl, programInfo, cameraTransform);

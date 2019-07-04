@@ -1,0 +1,50 @@
+1. The three transformations needed to take one Cube and make a Jack include two, for the nonvertical crossbars, that involve both scaling and rotation. The scaling and rotation can be done in either order (e.g. scaling first and then rotation, or the reverse). Which way did you do it? Show the code in question here and explain why you feel the order of operations is as you stated given your code.
+
+Scaling -> Rotation. If the rotation is done first, and then the scaling, then the cube will simply resemble the rectangular prism without the rotate.
+
+        const bar = new CubeModel(gl);
+
+        const xTrans = mat4.create();
+        const yTrans = mat4.create();
+        const zTrans = mat4.create();
+        
+        mat4.rotateZ(yTrans, yTrans, Math.PI / 2);
+        mat4.rotateY(zTrans, zTrans, Math.PI / 2);
+        
+        mat4.scale(xTrans, xTrans, [1, 0.1, 0.1]);
+        mat4.scale(yTrans, yTrans, [1, 0.1, 0.1]);
+        mat4.scale(zTrans, zTrans, [1, 0.1, 0.1]);
+
+        super.addChild(bar, xTrans);
+        super.addChild(bar, yTrans);
+        super.addChild(bar, zTrans);
+
+2. Revise your code, leaving the old code as a comment, so that the order of rotation and scaling for the two crossbars is reversed. Be sure the Jack looks exactly the same either way.
+
+[It isn’t clear whether or not this is a question or not.] It draws each bar as the same bar, put in the same render space.
+
+3. For camera movement transformations, do you do the rotations for the camera before or after the main translation of the entire model down the z axis (e.g. by 6 units as in the original example code)? Why?
+
+Rotations -> Translation. If it were the translation first, then the origin, from which the model rotates, would be off-center from it, causing it’s position to rotate around the camera, as opposed to rotate around itself.
+
+4. Your camera rotations should involve a rotation about the X axis and one about the Y axis. When you specify a number of radians for such rotations, is that taken clockwise or counterclockwise about the axis in question, viewing the axis along the direction of its "arrow". (In the left-hand axis orientation of the OpenGL model space, that would be to facing to the right for the X axis, and facing up for the Y axis.)
+
+[Remember the question mark.] Counter-clockwise.
+
+5. Why is it important not to set up VBOs every time render is called in a LeafModel object?
+
+Because the creation of a VBO is (relatively) slow, allocated to the CPU, so for it to be recreated every render call would tax a program unnecessarily.
+
+6. When you computed and used the values for camera longitude and latitude, based on arrow-presses, one of the two needed negation and the other did not. Explain why this is so, based on your answers to question 4.
+
+Positively rotating the model along the Y-axis will spin it counter-clockwise—or, “to the right,” assuming it’s oriented correctly, which would align with the right arrow key. However, positively rotating the model along the X-axis will spin it “downward,” which does not correspond well with the up arrow key; it makes more sense to either negate the amount. 
+
+7. Examine the getSource code provided:
+
+    1. What is the importance of the final false parameter for the open call?
+
+	Makes the call synchronized, not returning the url until the request has been received. (https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/open).
+
+    2. What would a req.status of 200 signify?
+	
+	Signifies the request has been safely handles by the object. (https://developer.mozilla.org/en-US/docs/Web/HTTP/Status).
