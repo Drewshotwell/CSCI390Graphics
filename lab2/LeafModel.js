@@ -1,25 +1,5 @@
 class LeafModel {
    modelInfo;
-   /*constructor(gl) {
-      //this.modelInfo = this.makeModel(gl);
-
-      /*const positionBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.modelInfo.positions), gl.STATIC_DRAW);
-      
-      const colorBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.modelInfo.properties.color.vals), gl.STATIC_DRAW);
-      
-      const indexBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.modelInfo.indices), gl.STATIC_DRAW);
-
-      this.modelInfo['posBuf'] = positionBuffer;
-      this.modelInfo['indexBuf'] = indexBuffer;
-      this.modelInfo.properties.color['buf'] = colorBuffer;
-   }*/
-
    makeVBOs(gl) {
       const positionBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);

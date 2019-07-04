@@ -1,78 +1,81 @@
 class Cylinder extends LeafModel {
+   constructor(gl) {
+      super();
+      this.makeModel(gl);
+      super.makeVBOs(gl);
+   }
+
    makeModel(gl) {
-      var vertices = [], norms = [];
-      /*** Vertices ****/
+      var vertices = [], norms = [], faceColors = [], consoleColors = [];
+      /*** Vertices and Normals ****/
       // Top face
-      for (var vert = 1; vert <= 60; vert++) {
-         vertices.push(Math.cos(2 * Math.PI / vert), 1, Math.sin(2 * Math.PI / vert));
+      for (let vdx = 0; vdx < 60; vdx++) {
+         vertices.push(Math.cos(2 * Math.PI * (vdx / 60)), 1, Math.sin(2 * Math.PI * (vdx / 60)));
          norms.push(0, 1, 0);
       }
 
       // Middle Band
-      for (var vert = 1; vert <= 60; vert++) {
-         vertices.push(Math.cos(2 * Math.PI / vert), 1, Math.sin(2 * Math.PI / vert));
-         norms.push(Math.cos(2 * Math.PI / vert), 0, Math.sin(2 * Math.PI / vert));
+      for (let vdx = 0; vdx < 60; vdx++) {
+         vertices.push(Math.cos(2 * Math.PI * (vdx / 60)), 1, Math.sin(2 * Math.PI * (vdx / 60)));
+         norms.push(Math.cos(2 * Math.PI * (vdx / 60)), 0, Math.sin(2 * Math.PI * (vdx / 60)));
       }
-      for (var vert = 1; vert <= 60; vert++) {
-         vertices.push(Math.cos(2 * Math.PI / vert), -1, Math.sin(2 * Math.PI / vert));
-         norms.push(Math.cos(2 * Math.PI / vert), 0, Math.sin(2 * Math.PI / vert));
+      for (let vdx = 0; vdx < 60; vdx++) {
+         vertices.push(Math.cos(2 * Math.PI * (vdx / 60)), -1, Math.sin(2 * Math.PI * (vdx / 60)));
+         norms.push(Math.cos(2 * Math.PI * (vdx / 60)), 0, Math.sin(2 * Math.PI * (vdx / 60)));
       }
 
       // Bottom Face
-      for (var vert = 1; vert <= 60; vert++) {
-         vertices.push(Math.cos(2 * Math.PI / vert), -1, Math.sin(2 * Math.PI / vert));
+      for (let vdx = 0; vdx < 60; vdx++) {
+         vertices.push(Math.cos(2 * Math.PI * (vdx / 60)), -1, Math.sin(2 * Math.PI * (vdx / 60)));
          norms.push(0, -1, 0);
       }
 
       // Poles
       vertices.push(0, 1, 0,
-         0, -1, 0);
+                    0, -1, 0);
       norms.push(0, 1, 0,
-         0, -1, 0);
+                 0, -1, 0);
 
-      /*** Indices ****/
+      /*** Indices and Colors ****/
       var idxs = [];
       // Top Face
       for (let i = 0; i < 60; i++) {
-         idxs.push(i, 240, (i + 1) % 60);
+         idxs.push(
+            i % 60, 240, (i + 1) % 60);
+         for (let j = 0; j < 3; j++) {
+            faceColors.push(1, 0, 0, 1);
+         } 
+         consoleColors.push([1, 0, 0, 1]);
+         
       }
 
-      // Middle Band (2 triangles each)
+      // Middle Band (2 triangles for each face)
       for (let i = 0; i < 60; i++) {
          idxs.push(
-            (i % 60) + 60, (i % 60) + 60 + 1, (i % 60) + 120,
-            (i % 60) + 60 + 1, (i % 60) + 120, (i % 60) + 120 + 1);
-      }
-      // Bottom Face
-      for (let i = 0; i < 60; i++) {
-         idxs.push((i % 60) + 180, 241, ((i + 1) % 60) + 180);
-      };
-
-      /*** FaceColors ****/
-      var faceColors = [];
-      for (let i = 0; i < 60; i++) {
-         for (let j = 0; j < 3; j++) {
+            (i % 60) + 60, ((i + 1) % 60) + 60, (i % 60) + 120,
+            ((i + 1) % 60) + 60, (i % 60) + 120, ((i + 1) % 60) + 120);
+         for (let j = 0; j < 6; j++) {
             faceColors.push(1, 1, 1, 1);
          }
+         consoleColors.push([1, 1, 1, 1], [1, 1, 1, 1]);
       }
-      for (let i = 0; i < 120; i++) {
+
+      // Bottom Face
+      for (let i = 0; i < 60; i++) {
+         idxs.push(
+            (i % 60) + 180, 241, ((i + 1) % 60) + 180);
          for (let j = 0; j < 3; j++) {
             faceColors.push(1, 0, 0, 1);
          }
-      }
-      for (let i = 0; i < 60; i++) {
-         for (let j = 0; j < 3; j++) {
-            faceColors.push(1, 1, 1, 1);
-         }
-      }
-      faceColors.push(1, 1, 1, 1,
-         1, 1, 1, 1);
+         consoleColors.push([1, 0, 0, 1]);
+      };
+      
       console.log(vertices);
-      console.log(norms);
       console.log(idxs);
+      console.log(consoleColors);
       console.log(faceColors);
 
-      return {
+      super.modelInfo = {
          positions: vertices,
          normals: norms,
          indices: idxs,
