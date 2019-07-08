@@ -5,6 +5,10 @@ class LeafModel {
       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.modelInfo.positions), gl.STATIC_DRAW);
 
+      const normalBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.modelInfo.normals), gl.STATIC_DRAW); 
+
       const colorBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.modelInfo.properties.color.vals), gl.STATIC_DRAW);
@@ -13,8 +17,10 @@ class LeafModel {
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
       gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.modelInfo.indices), gl.STATIC_DRAW);
 
+
       this.modelInfo['posBuf'] = positionBuffer;
       this.modelInfo['indexBuf'] = indexBuffer;
+      this.modelInfo['normBuf'] = normalBuffer;
       this.modelInfo.properties.color['buf'] = colorBuffer;
    }
 
@@ -29,14 +35,32 @@ class LeafModel {
          const offset = 0;
          gl.bindBuffer(gl.ARRAY_BUFFER, this.modelInfo.posBuf);
          gl.vertexAttribPointer(
-            programInfo.attribLocations.aVertexPosition,
+            programInfo.attribLocations.vertPos,
             numComponents,
             type,
             normalize,
             stride,
             offset);
          gl.enableVertexAttribArray(
-            programInfo.attribLocations.aVertexPosition);
+            programInfo.attribLocations.vertPos);
+      }
+
+      {
+         const numComponents = 3;
+         const type = gl.FLOAT;
+         const normalize = false;
+         const stride = 0;
+         const offset = 0;
+         gl.bindBuffer(gl.ARRAY_BUFFER, this.modelInfo.normBuf);
+         gl.vertexAttribPointer(
+            programInfo.attribLocations.vertNormal,
+            numComponents,
+            type,
+            normalize,
+            stride,
+            offset);
+         gl.enableVertexAttribArray(
+            programInfo.attribLocations.vertNormal);
       }
 
       // Tell WebGL how to pull out the colors from the color buffer
@@ -67,7 +91,7 @@ class LeafModel {
 
       // Set the shader uniforms
       gl.uniformMatrix4fv(
-         programInfo.uniformLocations.uModelViewMatrix,
+         programInfo.uniformLocations.mvMatrix,
          false,
          modelViewMatrix);
 

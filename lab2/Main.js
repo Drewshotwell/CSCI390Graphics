@@ -40,9 +40,6 @@ function main() {
 
    drawScene(gl, programInfo, model);
 
-
-
-
    document.addEventListener('keydown', (event) => {
       if (event.keyCode == 37) { // Left
          theta -= Math.PI / 10;

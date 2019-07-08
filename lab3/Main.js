@@ -27,16 +27,17 @@ function main() {
       return (req.status == 200) ? req.responseText : null;
    };
 
-   const vsSource = getSource('VtxShader.glsl');
-   const fsSource = getSource('FrgShader.glsl');
+   const vsSource = getSource('GouraudVrtShader.glsl');
+   const fsSource = getSource('GouraudFrgShader.glsl');
 
    // Initialize programInfo without outside module
-   const attNames = ['aVertexPosition', 'color'], ufmNames = ['uModelViewMatrix', 'uProjectionMatrix'];
+   const attNames = ['vertPos', 'vertNormal', 'color'], ufmNames = ['mvMatrix', 'prjMatrix', 'nrmMatrix','glbAmbient'];
    const programInfo = makeShaderProgram(gl, vsSource, fsSource, attNames, ufmNames);
+   console.log(programInfo);
 
    // Here's where we call the routine that builds all the
    // objects we'll be drawing.
-   const model = new Cylinder(gl);
+   const model = new Jack(gl);
 
    drawScene(gl, programInfo, model);
 
@@ -96,20 +97,27 @@ function drawScene(gl, programInfo, model) {
       aspect,
       zNear,
       zFar);
-
+   
+   const globalAmbient = [0.2, 0.2, 0.2, 1.0];
+   
    // Tell WebGL to use our program when drawing
    gl.useProgram(programInfo.program);
 
    gl.uniformMatrix4fv(
-      programInfo.uniformLocations.uProjectionMatrix,
+      programInfo.uniformLocations.prjMatrix,
       false,
       projectionMatrix);
-
+      
+   gl.uniform4fv(
+      programInfo.uniformLocations.glbAmbient,
+      1,
+      globalAmbient);
+         
    cameraTransform = mat4.create();
 
    mat4.translate(cameraTransform, cameraTransform, distToCamera);
    mat4.rotateX(cameraTransform, cameraTransform, phi);
-   mat4.rotateY(cameraTransform, cameraTransform, theta);
+   mat4.rotateY(cameraTransform, cameraTransform, -theta);
 
    model.render(gl, programInfo, cameraTransform);
 
