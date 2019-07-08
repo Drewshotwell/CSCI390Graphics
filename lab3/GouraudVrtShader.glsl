@@ -1,7 +1,6 @@
 precision mediump float;
 attribute vec3 vertPos;
 attribute vec3 vertNormal;
-attribute vec4 color;
 varying vec4 varyingColor;
 
 struct PositionalLight {
@@ -18,17 +17,15 @@ struct Material {
 	float shininess;
 };
 
-uniform vec4 glbAmbient;
 uniform PositionalLight light;
 uniform Material material;
+uniform vec4 glbAmbient;
 uniform mat4 mvMatrix;
 uniform mat4 prjMatrix;
 uniform mat4 nrmMatrix;
 
 void main(void) {
-   //vec4 color;
-	
-	// convert vertex position to view space
+   // convert vertex position to view space
 	vec4 P = mvMatrix * vec4(vertPos,1.0);
 	
 	// convert normal to view space

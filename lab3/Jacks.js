@@ -1,8 +1,8 @@
 class Jack extends CompoundModel {
-   constructor(gl) {
+   constructor(gl, material) {
       super();
 
-      const bar = new Cylinder(gl);
+      const bar = new Cylinder(gl, material);
 
       const xTrans = mat4.create();
       const yTrans = mat4.create();
@@ -23,10 +23,10 @@ class Jack extends CompoundModel {
 }
 
 class JackStack extends CompoundModel {
-   constructor(gl, rot) {
+   constructor(gl, rot, material) {
       super();
 
-      const jack = new Jack(gl);
+      const jack = new Jack(gl, material);
 
       const trans1 = mat4.create();
       const trans2 = mat4.create();
@@ -50,9 +50,9 @@ class JackStackAttack extends CompoundModel {
    constructor(gl) {
       super();
 
-      const jackStack1 = new JackStack(gl, 120 * Math.PI / 180);
-      const jackStack2 = new JackStack(gl, 90 * Math.PI / 180);
-      const jackStack3 = new JackStack(gl, 30 * Math.PI / 180);
+      const jackStack1 = new JackStack(gl, 120 * Math.PI / 180, Material.gold);
+      const jackStack2 = new JackStack(gl, 90 * Math.PI / 180, Material.jade);
+      const jackStack3 = new JackStack(gl, 30 * Math.PI / 180, Material.pearl);
 
       const trans1 = mat4.create();
       const trans2 = mat4.create();

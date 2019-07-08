@@ -1,3 +1,4 @@
+precision mediump float;
 varying vec3 varyingNormal;
 varying vec3 varyingLightDir;
 varying vec3 varyingVertPos;
@@ -16,9 +17,9 @@ struct Material {
 	float shininess;
 };
 
-uniform vec4 globalAmbient;
 uniform PositionalLight light;
 uniform Material material;
+uniform vec4 glbAmbient;
 uniform mat4 mvMatrix;
 uniform mat4 prjMatrix;
 uniform mat4 nrmMatrix;
@@ -39,7 +40,7 @@ void main(void) {
 	float cosPhi = dot(V,R);
 
 	// compute ADS contributions (per pixel):
-	vec3 ambient = ((globalAmbient * material.ambient) + (light.ambient * material.ambient)).xyz;
+	vec3 ambient = ((glbAmbient * material.ambient) + (light.ambient * material.ambient)).xyz;
 	vec3 diffuse = light.diffuse.xyz * material.diffuse.xyz * max(cosTheta,0.0);
 	vec3 specular = light.specular.xyz * material.specular.xyz * pow(max(cosPhi,0.0), material.shininess);
 

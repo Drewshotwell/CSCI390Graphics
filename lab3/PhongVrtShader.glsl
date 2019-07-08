@@ -1,3 +1,4 @@
+precision mediump float;
 attribute vec3 vertPos;
 attribute vec3 vertNormal;
 varying vec3 varyingNormal;
@@ -18,9 +19,9 @@ struct Material {
 	float shininess;
 };
 
-uniform vec4 globalAmbient;
 uniform PositionalLight light;
 uniform Material material;
+uniform vec4 glbAmbient;
 uniform mat4 mvMatrix;
 uniform mat4 prjMatrix;
 uniform mat4 nrmMatrix;

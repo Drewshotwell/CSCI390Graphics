@@ -1,6 +1,6 @@
 class Cylinder extends LeafModel {
-   constructor(gl) {
-      super();
+   constructor(gl, material) {
+      super(material);
       this.makeModel(gl);
       super.makeVBOs(gl);
    }

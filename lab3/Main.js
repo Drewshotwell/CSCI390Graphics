@@ -1,6 +1,8 @@
-var cameraTransform;
-var theta = 0, phi = 0;
-var distToCamera = [0, 0, -10];
+/* Global Variables*/
+var worldTheta = 0, worldPhi = 0;
+var lightTheta = 0, lightPhi = 0;
+var distToModel = [0, 0, -10];
+var distToLight = [0, 0, 10];
 
 main();
 
@@ -21,56 +23,92 @@ function main() {
    function getSource(url) {
       var req = new XMLHttpRequest();
 
-      req.open("GET", url, false);
+      req.open('GET', url, false);
       req.send(null);
 
       return (req.status == 200) ? req.responseText : null;
    };
 
-   const vsSource = getSource('GouraudVrtShader.glsl');
-   const fsSource = getSource('GouraudFrgShader.glsl');
+   // Attribute names
+   const attNames = ['vertPos', 'notAnAtt', 'vertNormal', 'color']
 
-   // Initialize programInfo without outside module
-   const attNames = ['vertPos', 'vertNormal', 'color'], ufmNames = ['mvMatrix', 'prjMatrix', 'nrmMatrix','glbAmbient'];
-   const programInfo = makeShaderProgram(gl, vsSource, fsSource, attNames, ufmNames);
-   console.log(programInfo);
+   // Uniform names
+   const ufmNames = ['mvMatrix', 'prjMatrix', 'nrmMatrix', 'glbAmbient',
+      // Struct Names
+      'light.ambient', 'light.diffuse', 'light.specular', 'light.position',
+      'material.ambient', 'material.diffuse', 'material.specular', 'material.shininess'
+   ];
+
+   // Initialize program from class
+   const gouraudShaderProgram = new ShaderProgram(gl, getSource('GouraudVrtShader.glsl'), getSource('GouraudFrgShader.glsl'), attNames, ufmNames);
+   const phongShaderProgram = new ShaderProgram(gl, getSource('PhongVrtShader.glsl'), getSource('PhongFrgShader.glsl'), attNames, ufmNames);
 
    // Here's where we call the routine that builds all the
    // objects we'll be drawing.
-   const model = new Jack(gl);
+   //const model = new Jack(gl, Material.pearl);
+   const model = new JackStackAttack(gl);
+   var effectiveShaderProgram = gouraudShaderProgram;
+   //const model = new JackStack(gl, 0, Material.gold);
+   //const model = new Cylinder(gl, Material.pearl);
 
-   drawScene(gl, programInfo, model);
+   drawScene(gl, effectiveShaderProgram, model);
 
    document.addEventListener('keydown', (event) => {
       switch (event.code) {
-         case "ArrowLeft":
-            theta -= Math.PI / 10;
+         case 'ArrowLeft':
+            if (event.shiftKey) {
+               lightTheta -= Math.PI / 10;
+            }
+            else {
+               worldTheta -= Math.PI / 10;
+            }
             break;
-         case "ArrowRight":
-            theta += Math.PI / 10;
+         case 'ArrowRight':
+            if (event.shiftKey) {
+               lightTheta += Math.PI / 10;
+            }
+            else {
+               worldTheta += Math.PI / 10;
+            }
             break;
-         case "ArrowUp":
-            phi = phi < Math.PI / 2 ? phi + Math.PI / 10 : Math.PI / 2;
+         case 'ArrowUp':
+            if (event.shiftKey) {
+               lightPhi = lightPhi < Math.PI / 2 ? lightPhi + Math.PI / 10 : Math.PI / 2;
+            }
+            else {
+               worldPhi = worldPhi < Math.PI / 2 ? worldPhi + Math.PI / 10 : Math.PI / 2;
+            }
             break;
-         case "ArrowDown":
-            phi = phi > -Math.PI / 2 ? phi - Math.PI / 10 : -Math.PI / 2;
+         case 'ArrowDown':
+            if (event.shiftKey) {
+               lightPhi = lightPhi > -Math.PI / 2 ? lightPhi - Math.PI / 10 : -Math.PI / 2;
+            }
+            else {
+               worldPhi = worldPhi > -Math.PI / 2 ? worldPhi - Math.PI / 10 : -Math.PI / 2;
+            }
             break;
-         case "KeyF":
-            vec3.add(distToCamera, distToCamera, [0, 0, 1]);
+         case 'KeyA':
+            vec3.add(distToModel, distToModel, [0, 0, 1]);
             break;
-         case "KeyG":
-            vec3.add(distToCamera, distToCamera, [0, 0, -1]);
+         case 'KeyS':
+            vec3.add(distToModel, distToModel, [0, 0, -1]);
+            break;
+         case 'KeyG':
+            effectiveShaderProgram = gouraudShaderProgram;
+            break;
+         case 'KeyP':
+            effectiveShaderProgram = phongShaderProgram;
             break;
       }
-      drawScene(gl, programInfo, model);
+      drawScene(gl, effectiveShaderProgram, model);
    });
 }
 
 //
 // Draw the scene.
 //
-function drawScene(gl, programInfo, model) {
-   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
+function drawScene(gl, program, model) {
+   gl.clearColor(0.6, 0.8, 1.0, 1.0);  // Clear to black, fully opaque
    gl.clearDepth(1.0);                 // Clear everything
    gl.enable(gl.DEPTH_TEST);           // Enable depth testing
    gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
@@ -101,25 +139,41 @@ function drawScene(gl, programInfo, model) {
    const globalAmbient = [0.2, 0.2, 0.2, 1.0];
    
    // Tell WebGL to use our program when drawing
-   gl.useProgram(programInfo.program);
+   program.use();
 
-   gl.uniformMatrix4fv(
-      programInfo.uniformLocations.prjMatrix,
+   // Projection Matrix
+   program.uniformMatrix4fv(
+      program.uniformLocations.prjMatrix,
       false,
       projectionMatrix);
-      
-   gl.uniform4fv(
-      programInfo.uniformLocations.glbAmbient,
-      1,
+   
+   // Global ambient light
+   program.uniform4fv(
+      program.uniformLocations.glbAmbient,
       globalAmbient);
-         
-   cameraTransform = mat4.create();
-
-   mat4.translate(cameraTransform, cameraTransform, distToCamera);
-   mat4.rotateX(cameraTransform, cameraTransform, phi);
-   mat4.rotateY(cameraTransform, cameraTransform, -theta);
-
-   model.render(gl, programInfo, cameraTransform);
-
-   return cameraTransform;
+   
+      
+   // Camera Transforms (last transforms in code sequence made first)
+   var cameraTransform = mat4.create();
+   mat4.translate(cameraTransform, cameraTransform, distToModel);
+   mat4.rotateX(cameraTransform, cameraTransform, worldPhi);
+   mat4.rotateY(cameraTransform, cameraTransform, -worldTheta);
+   
+   // vec3 * mat4 -> vec3
+   vec3.transformMat4(Light.stdLight.position, vec3.subtract(vec3.create(), distToLight, distToModel), cameraTransform);
+   console.log(-lightPhi, ' ', lightTheta);
+   console.log("Subtracted: ", vec3.str(vec3.subtract(vec3.create(), distToLight, distToModel)));
+   console.log("Untransformed", distToLight);
+   
+   const radius = vec3.length(vec3.subtract(vec3.create(), distToLight, distToModel));
+   distToLight = [
+      radius*Math.sin(-lightPhi + Math.PI / 2)*Math.sin(lightTheta),
+      radius*Math.cos(-lightPhi + Math.PI / 2),
+      radius*Math.sin(-lightPhi + Math.PI / 2)*Math.cos(lightTheta),
+   ];
+   
+   // Standard light
+   Light.stdLight.setUniform(gl, program, Light.stdLight);
+      
+   model.render(gl, program, cameraTransform);
 }

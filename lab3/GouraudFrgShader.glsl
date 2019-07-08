@@ -17,16 +17,15 @@ struct Material {
 	float shininess;
 };
 
-uniform vec4 globalAmbient;
 uniform PositionalLight light;
 uniform Material material;
+uniform vec4 globalAmbient;
 uniform mat4 mvMatrix;
 uniform mat4 prjMatrix;
 uniform mat4 nrmMatrix;
 
 //  interpolate lighted color
 // (interpolation of gl_Position is automatic)
-
 void main(void) {	
    gl_FragColor = varyingColor;
 }
