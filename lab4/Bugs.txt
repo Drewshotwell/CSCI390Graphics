@@ -1,0 +1,5 @@
+Determining the indices of the cylinder.
+
+Assigning the colors per vertex, vs per index.
+
+Linking the shader programs to the Lab with successful compilation is much more difficult than it seems.

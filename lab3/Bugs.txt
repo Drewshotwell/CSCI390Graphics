@@ -3,3 +3,5 @@ Determining the indices of the cylinder.
 Assigning the colors per vertex, vs per index.
 
 Linking the shader programs to the Lab with successful compilation is much more difficult than it seems.
+
+Determining the camera direction in such a way that the initial view transform is correct is more difficult than it seems, at least coding the fundamental intuition around doing so. There isn't sufficient emphasis on the camera direction in the first place, which may throw people off.
