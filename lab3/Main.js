@@ -192,7 +192,7 @@ function drawScene(gl, program, model, objTransforms) {
    var viewTransform = mat4.create();
    mat4.translate(viewTransform, viewTransform, vec3.scale(vec3.create(), cameraDir, objTransforms.cameraTransforms.distance));
    mat4.rotateX(viewTransform, viewTransform, objTransforms.cameraTransforms.phi);
-   mat4.rotateY(viewTransform, viewTransform, -objTransforms.cameraTransforms.theta);
+   mat4.rotateY(viewTransform, viewTransform, objTransforms.cameraTransforms.theta);
 
    // vec3 * mat4 -> vec3
    vec3.transformMat4(Light.stdLight.position, lightPos, viewTransform);
