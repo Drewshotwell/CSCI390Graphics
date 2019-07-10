@@ -1,5 +1,5 @@
 precision mediump float;
-varying vec4 varyingColor;
+varying vec3 varyingColor;
 
 //  uniforms match those in the vertex shader,
 //  but aren't used directly in this fragment shader
@@ -27,5 +27,5 @@ uniform mat4 nrmMatrix;
 //  interpolate lighted color
 // (interpolation of gl_Position is automatic)
 void main(void) {	
-   gl_FragColor = varyingColor;
+   gl_FragColor = vec4(varyingColor, 1.0);
 }

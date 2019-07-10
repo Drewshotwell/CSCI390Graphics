@@ -1,7 +1,7 @@
 precision mediump float;
 attribute vec3 vertPos;
 attribute vec3 vertNormal;
-varying vec4 varyingColor;
+varying vec3 varyingColor;
 
 struct PositionalLight {
    vec4 ambient;
@@ -54,7 +54,7 @@ void main(void) {
 	 * material.specular.xyz * light.specular.xyz;
 
 	// send the color output to the fragment shader
-	varyingColor = vec4((ambient + diffuse + specular), 1.0);
+	varyingColor = ambient + diffuse + specular;
 	
 	// send the position to the fragment shader, as before
 	gl_Position = prjMatrix * mvMatrix * vec4(vertPos,1.0);

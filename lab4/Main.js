@@ -14,7 +14,6 @@ function main() {
       return;
    }
 
-   
    function getSource(url) {
       var req = new XMLHttpRequest();
       
@@ -41,7 +40,7 @@ function main() {
 
    // Here's where we call the routine that builds all the
    // objects we'll be drawing.
-   const model = new Octahedron(gl, Material.jade);
+   const model = new Octahedron(gl, Material.pearl);
 
    var objTransforms = {
       cameraTransforms: {
@@ -151,7 +150,7 @@ function drawScene(gl, program, model, objTransforms) {
       zNear,
       zFar);
    
-   const globalAmbient = [0.2, 0.2, 0.2, 1.0];
+   const globalAmbient = [0.5, 0.5, 0.5, 1.0];
    
    // Tell WebGL to use our program when drawing
    program.use();
@@ -175,16 +174,6 @@ function drawScene(gl, program, model, objTransforms) {
       lightRadius * Math.sin(-objTransforms.lightTransforms.phi + Math.PI / 2) * Math.cos(objTransforms.lightTransforms.theta),
    ];
 
-   /*var cameraDir = vec3.create();
-   vec3.rotateX(cameraDir, cameraDir, objTransforms.cameraTransforms.roll);
-   vec3.rotateY(cameraDir, cameraDir, objTransforms.cameraTransforms.yaw);
-   vec3.rotateX(cameraDir, cameraDir, objTransforms.cameraTransforms.pitch);*/
-
-   /*console.log("lightTr: ", objTransforms.lightTransforms);
-   console.log("cameraTr: ", objTransforms.cameraTransforms);
-   console.log('lightPos: ', lightPos);
-   console.log('cameraPos: ', cameraPos);*/
-
    // Establish camera direction
    const cameraDir = [0, 0, -1];
 
@@ -192,7 +181,7 @@ function drawScene(gl, program, model, objTransforms) {
    var viewTransform = mat4.create();
    mat4.translate(viewTransform, viewTransform, vec3.scale(vec3.create(), cameraDir, objTransforms.cameraTransforms.distance));
    mat4.rotateX(viewTransform, viewTransform, objTransforms.cameraTransforms.phi);
-   mat4.rotateY(viewTransform, viewTransform, objTransforms.cameraTransforms.theta);
+   mat4.rotateY(viewTransform, viewTransform, -objTransforms.cameraTransforms.theta);
 
    // vec3 * mat4 -> vec3
    vec3.transformMat4(Light.stdLight.position, lightPos, viewTransform);
