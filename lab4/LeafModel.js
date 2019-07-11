@@ -69,7 +69,6 @@ class LeafModel {
 
    subdivide(reps, ftn) {
       for (let i = 0; i < reps; i++) {
-
          // New index objects
          var idxMap = new Map();
          const curIdxLen = this.modelInfo.indices.length;
@@ -77,20 +76,18 @@ class LeafModel {
 
          // Copy of vertices in an array of arrays
          var vertArr = [];
-         for (let vdx = 0; vdx <= this.modelInfo.positions.length - 3; vdx += 3) {
+         for (let vdx = 0; vdx < this.modelInfo.positions.length; vdx += 3) {
             vertArr.push([this.modelInfo.positions[vdx], this.modelInfo.positions[vdx + 1], this.modelInfo.positions[vdx + 2]]);
          }
 
-         for (let idxIndex = 0; idxIndex <= curIdxLen - 3; idxIndex += 3) {
+         for (let idxIndex = 0; idxIndex < curIdxLen; idxIndex += 3) {
+            // Start of new indices
             const newStartIndex = curIdxLen / 3 + idxIndex;
-            let v1 = vertArr[this.modelInfo.indices[idxIndex]];
-            let v2 = vertArr[this.modelInfo.indices[idxIndex + 1]];
-            let v3 = vertArr[this.modelInfo.indices[idxIndex + 2]];
-            let m1 = ftn(v1, v2);
-            let m2 = ftn(v2, v3);
-            let m3 = ftn(v3, v1);
-            this.modelInfo.positions.push(...m1, ...m2, ...m3);
 
+            // Function to check map containment
+            var pairAvailable = function (i1, i2) {
+               return !(idxMap.has([ i1, i2 ]) || idxMap.has([ i2, i1 ]));
+            }
             // Original indices
             var a = this.modelInfo.indices[idxIndex];
             var b = this.modelInfo.indices[idxIndex + 1];
@@ -100,6 +97,25 @@ class LeafModel {
             var d = newStartIndex;
             var e = newStartIndex + 1;
             var f = newStartIndex + 2;
+            
+            // Vertices of original vertices
+            var v1 = vertArr[a];
+            var v2 = vertArr[b];
+            var v3 = vertArr[c];
+
+            // Vertices of new indices
+            if (pairAvailable(a, b)) {
+               let m1 = ftn(v1, v2);
+               this.modelInfo.positions.push(...m1);
+            }
+            if (pairAvailable(b, c)) {
+               let m2 = ftn(v2, v3);
+               this.modelInfo.positions.push(...m2);
+            }
+            if (pairAvailable(c, a)) {
+               let m3 = ftn(v3, v1);
+               this.modelInfo.positions.push(...m3);
+            }
 
             // Set new indices
             newIndices.push(a, f, d);
@@ -107,18 +123,12 @@ class LeafModel {
             newIndices.push(c, e, f);
             newIndices.push(d, e, f); // Inverse filler triangle
 
-            var pairAvailable = function (i1, i2) {
-               if (!(idxMap.has({ i1, i2 }) || idxMap.has({ i2, i1 }))) {
-                  return true;
-               }
-               else return false;
-            }
-
-            if (pairAvailable(a, b)) idxMap.set({ a, b }, d);
-            if (pairAvailable(b, c)) idxMap.set({ b, c }, e);
-            if (pairAvailable(c, a)) idxMap.set({ c, a }, f);
+            if (pairAvailable(a, b)) idxMap.set([ a, b ], d);
+            if (pairAvailable(b, c)) idxMap.set([ b, c ], e);
+            if (pairAvailable(c, a)) idxMap.set([ c, a ], f);
          }
          this.modelInfo.indices = newIndices;
+         this.modelInfo.normals = this.modelInfo.positions;
          console.log(idxMap);
          console.log(this.modelInfo.positions);
          console.log(this.modelInfo.indices);
