@@ -70,10 +70,11 @@ class LeafModel {
    subdivide(reps, ftn) {
       for (let i = 0; i < reps; i++) {
          // New index objects
-         var idxMap = new Map();
-         const curIdxMax = Math.max(...this.modelInfo.indices);
-         const curIdxLen = this.modelInfo.indices.length;
+         var idxMap = {};
          var newIndices = [];
+
+         // Stamp current index length as not to cause an infinte loop
+         const curIdxLen = this.modelInfo.indices.length;
 
          // Copy of vertices in an array of arrays
          var vertArr = [];
@@ -81,74 +82,66 @@ class LeafModel {
             vertArr.push([this.modelInfo.positions[vdx], this.modelInfo.positions[vdx + 1], this.modelInfo.positions[vdx + 2]]);
          }
 
-         var newIdxIncr = 0;
+         // Construction per-triangle of new indices
          for (let idxIndex = 0; idxIndex < curIdxLen; idxIndex += 3) {
-            // Start of new indices
-            const newStartIndex = curIdxMax + 1 + newIdxIncr;
-            console.log(newIdxIncr);
-            
             // Function to check map containment
             var pairAvailable = function (i1, i2) {
-               return !(idxMap.has([ i1, i2 ]) || idxMap.has([ i2, i1 ]));
+               return !(idxMap.hasOwnProperty([i1, i2]) || idxMap.hasOwnProperty([i2, i1]));
             }
+
+            var getObjectByKey = function (k1, k2) {
+               return idxMap[[k1, k2]] ? idxMap[[k1, k2]] : idxMap[[k2, k1]];
+            }
+
             // Original indices
             var a = this.modelInfo.indices[idxIndex];
             var b = this.modelInfo.indices[idxIndex + 1];
             var c = this.modelInfo.indices[idxIndex + 2];
+
+            // New indices
+            var d, e, f;
             
             // Vertices of original vertices
             var v1 = vertArr[a];
             var v2 = vertArr[b];
             var v3 = vertArr[c];
-            
-            // Vertices of new indices
+
+            // If available, then set a new index and compute midpoint,
+            // Otherwise, simply retrieve the midpoint-index already there.
             if (pairAvailable(a, b)) {
+               d = this.modelInfo.positions.length / 3;
+               idxMap[[a, b]] = d;
                let m1 = ftn(v1, v2);
                this.modelInfo.positions.push(...m1);
-               var d = newStartIndex;
-               idxMap.set([a, b], d);
-               newIdxIncr++;
             }
-            else {
-               var d = idxMap.get([a, b]);
-               console.log(d);
-            }
+            else d = getObjectByKey(a, b);
+
             if (pairAvailable(b, c)) {
+               e = this.modelInfo.positions.length / 3;
+               idxMap[[b, c]] = e;
                let m2 = ftn(v2, v3);
                this.modelInfo.positions.push(...m2);
-               var e = newStartIndex + 1;
-               idxMap.set([b, c], e);
-               newIdxIncr++;
             }
-            else {
-               var e = idxMap.get([b, c]);
-               console.log(e);
-            }
+            else e = getObjectByKey(b, c);
+
             if (pairAvailable(c, a)) {
+               f = this.modelInfo.positions.length / 3;
+               idxMap[[c, a]] = f;
                let m3 = ftn(v3, v1);
                this.modelInfo.positions.push(...m3);
-               var f = newStartIndex + 2;
-               idxMap.set([c, a], f);
-               newIdxIncr++;
             }
-            else {
-               var f = idxMap.get([c, a]);
-               console.log(f);
-            }
+            else f = getObjectByKey(c, a);
             
             // Set new indices
             newIndices.push(
                a, f, d,
                b, d, e,
                c, e, f,
-               d, e, f, // Inverse filler triangle
+               d, e, f,
             );
          }
          this.modelInfo.indices = newIndices;
          this.modelInfo.normals = this.modelInfo.positions;
-         console.log(idxMap);
-         console.log(this.modelInfo.positions);
-         console.log(this.modelInfo.indices);
       }
    }
 }

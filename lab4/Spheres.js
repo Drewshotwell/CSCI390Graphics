@@ -1,8 +1,8 @@
 class Octahedron extends LeafModel {
-   constructor(gl, material) {
+   constructor(gl, material, divN) {
       super(material);
       this.makeModel();
-      super.subdivide(3, function (v1, v2) {
+      super.subdivide(divN, function (v1, v2) {
          const midVec = vec3.create();
          vec3.add(midVec, v1, v2);
          vec3.scale(midVec, midVec, 0.5);
@@ -47,10 +47,10 @@ class Octahedron extends LeafModel {
 }
 
 class Icosahedron extends LeafModel {
-   constructor(gl, material) {
+   constructor(gl, material, divN) {
       super(material);
       this.makeModel();
-      super.subdivide(1, function (v1, v2) {
+      super.subdivide(divN, function (v1, v2) {
          const midVec = vec3.create();
          vec3.add(midVec, v1, v2);
          vec3.scale(midVec, midVec, 0.5);
@@ -64,9 +64,9 @@ class Icosahedron extends LeafModel {
       const vertices = [];
       for (var k = 0; k < 10; k++) {
          vertices.push(
-            Math.sin(Math.PI / 2 - Math.atan(1 / 2)) * Math.cos(k * 0.628318530717959),
+            Math.sin(Math.PI / 2 - Math.tan(1 / 2)) * Math.cos(k * 0.628318530717959),
             Math.pow(-1, k) * Math.cos(Math.PI / 2 - Math.tan(1 / 2)),
-            Math.sin(Math.PI / 2 - Math.atan(1 / 2)) * Math.sin(k * 0.628318530717959),
+            Math.sin(Math.PI / 2 - Math.tan(1 / 2)) * Math.sin(k * 0.628318530717959),
          );
       }
       vertices.push(
@@ -96,8 +96,10 @@ class Icosahedron extends LeafModel {
 }
 
 class BandedSphere extends LeafModel {
-   constructor(gl, material) {
+   constructor(gl, material, latNum, longNum) {
       super(material);
+      this.latNum = latNum;
+      this.longNum = longNum;
       this.makeModel();
       super.makeVBOs(gl);
    }
@@ -106,8 +108,8 @@ class BandedSphere extends LeafModel {
       var vertices = [], norms = [];
       var idxs = [];
 
-      const latN = 10;
-      const longN = 20;
+      const latN = this.latNum;
+      const longN = this.longNum;
       for (let latK = 1; latK < latN; latK++) {
          for (let longK = 0; longK < longN; longK++) {
 

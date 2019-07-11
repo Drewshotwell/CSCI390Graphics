@@ -40,7 +40,7 @@ function main() {
 
    // Here's where we call the routine that builds all the
    // objects we'll be drawing.
-   const model = new Octahedron(gl, Material.pearl);
+   const model = new Icosahedron(gl, Material.pearl, 5);
 
    var objTransforms = {
       cameraTransforms: {
