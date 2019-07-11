@@ -40,7 +40,22 @@ function main() {
 
    // Here's where we call the routine that builds all the
    // objects we'll be drawing.
-   const model = new Icosahedron(gl, Material.pearl, 5);
+   //const model = new Icosahedron(gl, Material.pearl, 5);
+   const model = new CompoundModel();
+   model.addChild(
+      new Icosahedron(gl, Material.gold, 1), mat4.translate(mat4.create(), mat4.create(), [-4, 2, 0]),
+      new Icosahedron(gl, Material.gold, 2), mat4.translate(mat4.create(), mat4.create(), [0, 2, 0]),
+      new Icosahedron(gl, Material.gold, 3), mat4.translate(mat4.create(), mat4.create(), [4, 2, 0]),
+      new BandedSphere(gl, Material.jade, 5, 10), mat4.translate(mat4.create(), mat4.create(), [-4, 0, 0]),
+      new BandedSphere(gl, Material.jade, 6, 12), mat4.translate(mat4.create(), mat4.create(), [-2, 0, 0]),
+      new BandedSphere(gl, Material.jade, 9, 20), mat4.translate(mat4.create(), mat4.create(), [0, 0, 0]),
+      new BandedSphere(gl, Material.jade, 11, 26), mat4.translate(mat4.create(), mat4.create(), [2, 0, 0]),
+      new BandedSphere(gl, Material.jade, 17, 40), mat4.translate(mat4.create(), mat4.create(), [4, 0, 0]),
+      new Octahedron(gl, Material.pearl, 2), mat4.translate(mat4.create(), mat4.create(), [-2, -2, 0]),
+      new Octahedron(gl, Material.pearl, 3), mat4.translate(mat4.create(), mat4.create(), [2, -2, 0]),
+   );
+   const terrain = new Terrain(gl, Material.gold, 7);
+   model.addChild(terrain, mat4.translate(mat4.create(), mat4.create(), [0, -5, 0]));
 
    var objTransforms = {
       cameraTransforms: {

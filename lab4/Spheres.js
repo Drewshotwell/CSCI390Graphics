@@ -6,8 +6,7 @@ class Octahedron extends LeafModel {
          const midVec = vec3.create();
          vec3.add(midVec, v1, v2);
          vec3.scale(midVec, midVec, 0.5);
-         vec3.normalize(midVec, midVec);
-         return midVec;
+         return vec3.normalize(midVec, midVec);;
       });
       super.makeVBOs(gl);
    }
@@ -73,8 +72,6 @@ class Icosahedron extends LeafModel {
          0, 1, 0,
          0, -1, 0);
 
-      console.log(vertices);
-
       const idxs = [];
       for (var vdx = 0; vdx < 10; vdx++) {
          idxs.push(vdx % 10, (vdx + 1) % 10, (vdx + 2) % 10);
@@ -114,7 +111,7 @@ class BandedSphere extends LeafModel {
          for (let longK = 0; longK < longN; longK++) {
 
             const long = -Math.PI + longK * 2 * Math.PI / longN;
-            const lat = - Math.PI / 2 + latK * Math.PI / latN;
+            const lat = -Math.PI / 2 + latK * Math.PI / latN;
 
             const phi = lat + Math.PI / 2
             const theta = long;
@@ -141,18 +138,20 @@ class BandedSphere extends LeafModel {
             );
          }
       }
-
-      console.log(idxs);
+      
+      console.log(idxs.length / 3);
 
       // Poles
       for (let poldx = 0; poldx < longN; poldx++) {
-         idxs.push(
-            (latN - 1) * longN, poldx, (poldx + 1) % longN,
-            (latN - 1) * longN + 1, (latN - 2) * longN + poldx, (latN - 2) * longN + (poldx + 1) % longN
+      idxs.push(
+         (latN - 1) * longN, poldx, (poldx + 1) % longN,
+         (latN - 1) * longN + 1, (latN - 2) * longN + poldx, (latN - 2) * longN + (poldx + 1) % longN
          );
       }
-
-      console.log(idxs);
+         
+      console.log(idxs.length / 3);
+      console.log(2*longN*(latN -2) + 2*longN);
+         
       norms = vertices;
 
       super.modelInfo = {
