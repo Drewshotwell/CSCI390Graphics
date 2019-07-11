@@ -2,8 +2,7 @@ class Octahedron extends LeafModel {
    constructor(gl, material) {
       super(material);
       this.makeModel();
-      super.subdivide(1, function (v1, v2) {
-         //console.log(v1, v2);
+      super.subdivide(3, function (v1, v2) {
          const midVec = vec3.create();
          vec3.add(midVec, v1, v2);
          vec3.scale(midVec, midVec, 0.5);
@@ -17,11 +16,12 @@ class Octahedron extends LeafModel {
       var vertices = [], norms = [];
       var idxs = [];
 
+      const rad = 1 / Math.sqrt(2);
       vertices.push(
-         1, 0, 1,  // 0
-         -1, 0, 1, // 1
-         -1, 0, -1,// 2
-         1, 0, -1, // 3 
+         rad, 0, rad,  // 0
+         -rad, 0, rad, // 1
+         -rad, 0, -rad,// 2
+         rad, 0, -rad, // 3 
          0, 1, 0,  // 4
          0, -1, 0  // 5
       );

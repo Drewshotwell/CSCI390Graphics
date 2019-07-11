@@ -71,6 +71,7 @@ class LeafModel {
       for (let i = 0; i < reps; i++) {
          // New index objects
          var idxMap = new Map();
+         const curIdxMax = Math.max(...this.modelInfo.indices);
          const curIdxLen = this.modelInfo.indices.length;
          var newIndices = [];
 
@@ -80,10 +81,12 @@ class LeafModel {
             vertArr.push([this.modelInfo.positions[vdx], this.modelInfo.positions[vdx + 1], this.modelInfo.positions[vdx + 2]]);
          }
 
+         var newIdxIncr = 0;
          for (let idxIndex = 0; idxIndex < curIdxLen; idxIndex += 3) {
             // Start of new indices
-            const newStartIndex = curIdxLen / 3 + idxIndex;
-
+            const newStartIndex = curIdxMax + 1 + newIdxIncr;
+            console.log(newIdxIncr);
+            
             // Function to check map containment
             var pairAvailable = function (i1, i2) {
                return !(idxMap.has([ i1, i2 ]) || idxMap.has([ i2, i1 ]));
@@ -92,40 +95,54 @@ class LeafModel {
             var a = this.modelInfo.indices[idxIndex];
             var b = this.modelInfo.indices[idxIndex + 1];
             var c = this.modelInfo.indices[idxIndex + 2];
-
-            // New indices
-            var d = newStartIndex;
-            var e = newStartIndex + 1;
-            var f = newStartIndex + 2;
             
             // Vertices of original vertices
             var v1 = vertArr[a];
             var v2 = vertArr[b];
             var v3 = vertArr[c];
-
+            
             // Vertices of new indices
             if (pairAvailable(a, b)) {
                let m1 = ftn(v1, v2);
                this.modelInfo.positions.push(...m1);
+               var d = newStartIndex;
+               idxMap.set([a, b], d);
+               newIdxIncr++;
+            }
+            else {
+               var d = idxMap.get([a, b]);
+               console.log(d);
             }
             if (pairAvailable(b, c)) {
                let m2 = ftn(v2, v3);
                this.modelInfo.positions.push(...m2);
+               var e = newStartIndex + 1;
+               idxMap.set([b, c], e);
+               newIdxIncr++;
+            }
+            else {
+               var e = idxMap.get([b, c]);
+               console.log(e);
             }
             if (pairAvailable(c, a)) {
                let m3 = ftn(v3, v1);
                this.modelInfo.positions.push(...m3);
+               var f = newStartIndex + 2;
+               idxMap.set([c, a], f);
+               newIdxIncr++;
             }
-
+            else {
+               var f = idxMap.get([c, a]);
+               console.log(f);
+            }
+            
             // Set new indices
-            newIndices.push(a, f, d);
-            newIndices.push(b, d, e);
-            newIndices.push(c, e, f);
-            newIndices.push(d, e, f); // Inverse filler triangle
-
-            if (pairAvailable(a, b)) idxMap.set([ a, b ], d);
-            if (pairAvailable(b, c)) idxMap.set([ b, c ], e);
-            if (pairAvailable(c, a)) idxMap.set([ c, a ], f);
+            newIndices.push(
+               a, f, d,
+               b, d, e,
+               c, e, f,
+               d, e, f, // Inverse filler triangle
+            );
          }
          this.modelInfo.indices = newIndices;
          this.modelInfo.normals = this.modelInfo.positions;
