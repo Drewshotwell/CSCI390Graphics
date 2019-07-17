@@ -12,7 +12,7 @@ class Light {
       [1.0, 1.0, 1.0, 1.0],
       [0, 0, 10]);
 
-   setUniform(gl, program, name) {
+   setUniform(program, name) {
       program.use();
       program.uniform4fv(program.uniformLocations['light.ambient'], name.ambient);
       program.uniform4fv(program.uniformLocations['light.diffuse'], name.diffuse);

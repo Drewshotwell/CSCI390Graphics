@@ -28,7 +28,7 @@ class LeafModel {
 
    render(gl, program, modelViewMatrix) {
       if (this.material != null) {
-         this.material.setUniform(gl, program, this.material);
+         this.material.setUniform(program, this.material);
       }
       else {
          alert("Leaf Model's material is null");

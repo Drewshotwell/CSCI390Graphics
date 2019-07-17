@@ -175,16 +175,6 @@ function drawScene(gl, program, model, objTransforms) {
       lightRadius * Math.sin(-objTransforms.lightTransforms.phi + Math.PI / 2) * Math.cos(objTransforms.lightTransforms.theta),
    ];
 
-   /*var cameraDir = vec3.create();
-   vec3.rotateX(cameraDir, cameraDir, objTransforms.cameraTransforms.roll);
-   vec3.rotateY(cameraDir, cameraDir, objTransforms.cameraTransforms.yaw);
-   vec3.rotateX(cameraDir, cameraDir, objTransforms.cameraTransforms.pitch);*/
-
-   /*console.log("lightTr: ", objTransforms.lightTransforms);
-   console.log("cameraTr: ", objTransforms.cameraTransforms);
-   console.log('lightPos: ', lightPos);
-   console.log('cameraPos: ', cameraPos);*/
-
    // Establish camera direction
    const cameraDir = [0, 0, -1];
 
@@ -199,6 +189,6 @@ function drawScene(gl, program, model, objTransforms) {
    
    // Standard light
    Light.stdLight.setUniform(gl, program, Light.stdLight);
-      
+   
    model.render(gl, program, viewTransform);
 }

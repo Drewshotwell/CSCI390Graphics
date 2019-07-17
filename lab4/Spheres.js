@@ -138,19 +138,14 @@ class BandedSphere extends LeafModel {
             );
          }
       }
-      
-      console.log(idxs.length / 3);
 
       // Poles
       for (let poldx = 0; poldx < longN; poldx++) {
-      idxs.push(
-         (latN - 1) * longN, poldx, (poldx + 1) % longN,
-         (latN - 1) * longN + 1, (latN - 2) * longN + poldx, (latN - 2) * longN + (poldx + 1) % longN
+         idxs.push(
+            (latN - 1) * longN, poldx, (poldx + 1) % longN,
+            (latN - 1) * longN + 1, (latN - 2) * longN + poldx, (latN - 2) * longN + (poldx + 1) % longN
          );
       }
-         
-      console.log(idxs.length / 3);
-      console.log(2*longN*(latN -2) + 2*longN);
          
       norms = vertices;
 

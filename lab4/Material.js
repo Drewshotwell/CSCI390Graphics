@@ -22,7 +22,7 @@ class Material {
       [0.2966, 0.2966, 0.2966, 0.922],
       11.264);
 
-   setUniform(gl, program, name) {
+   setUniform(program, name) {
       program.use();
       program.uniform4fv(program.uniformLocations['material.ambient'], name.ambient);
       program.uniform4fv(program.uniformLocations['material.diffuse'], name.diffuse);

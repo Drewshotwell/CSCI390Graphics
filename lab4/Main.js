@@ -24,7 +24,7 @@ function main() {
    };
    
    // Attribute names
-   const attNames = ['vertPos', 'notAnAtt', 'vertNormal', 'color']
+   const attNames = ['vertPos', 'vertNormal', 'color']
    
    // Uniform names
    const ufmNames = ['mvMatrix', 'prjMatrix', 'nrmMatrix', 'glbAmbient',
@@ -202,7 +202,7 @@ function drawScene(gl, program, model, objTransforms) {
    vec3.transformMat4(Light.stdLight.position, lightPos, viewTransform);
    
    // Standard light
-   Light.stdLight.setUniform(gl, program, Light.stdLight);
+   Light.stdLight.setUniform(program, Light.stdLight);
       
    model.render(gl, program, viewTransform);
 }
