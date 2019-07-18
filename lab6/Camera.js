@@ -6,6 +6,6 @@ class Camera extends LeafModel {
    render(time, gl, program, transFtn) {}
 
    getCameraXfm() {
-      return time => mat4.create();
+      return mat4.create();
    }
 }

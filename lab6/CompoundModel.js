@@ -17,20 +17,14 @@ class CompoundModel {
       }
    }
 
-   getCameraXfm() {
+   getCameraXfm(time) {
       for (let leaf of this.collection) {
          const camXfm = leaf.model.getCameraXfm();
          if (camXfm) { // Found a camera, begin multiplication string
-            const coll = this.collection;
-            return function (time) {
-               let trans = camXfm(time);
-               console.log(coll);
-               for (let subLeaf of coll) {
-                  console.log(mat4.str(subLeaf.transform(time)));
-                  mat4.multiply(trans, camXfm(time), subLeaf.transform(time));
-               }
-               return trans;
+            for (let subLeaf of this.collection) {
+               mat4.multiply(camXfm, camXfm, subLeaf.transform(time));
             }
+            return camXfm;
          }
       }
       return null;

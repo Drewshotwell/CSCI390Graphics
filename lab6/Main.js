@@ -191,18 +191,16 @@ function drawScene(gl, program, model, objTransforms, time) {
    ];
 
    // Establish camera direction
-   const cameraXfm = model.getCameraXfm();
-   console.log(cameraXfm(0));
+   const cameraXfm = model.getCameraXfm(time);
 
    // Camera Transforms (last transforms in code sequence made first)
    var viewTransform = function (time) {
       const trans = mat4.create();
       //mat4.multiply(trans, trans, objTransforms.camTrans);
-      mat4.multiply(trans, trans, cameraXfm(time));
+      mat4.multiply(trans, trans, cameraXfm);
       return trans;
    };
    
-
    // vec3 * mat4 -> vec3
    vec3.transformMat4(Light.stdLight.position, lightPos, viewTransform(time));
    
