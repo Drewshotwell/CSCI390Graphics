@@ -1,11 +1,13 @@
 class LeafModel {
    constructor(texture) {
       this.texture = texture;
-      super.modelInfo = {
-         positions: [],
-         normals: [],
-         indices: [],
-         texCoords: []
+      if (texture) {
+         this.modelInfo = {
+            positions: [],
+            normals: [],
+            indices: [],
+            texCoords: []
+         }
       }
    }
 
@@ -32,9 +34,13 @@ class LeafModel {
       this.modelInfo['indexBuf'] = indexBuffer;
    }
 
-   render(gl, program, modelViewMatrix) {
+   render(time, gl, program, transFtn) {
+      const curTrans = transFtn(time);
       if (this.texture != null) {
          this.texture.setUniform(gl, program, 'tex');
+      }
+      else if (this.material != null) {
+         this.material.setUniform(gl, program, 'material');
       }
       else {
          alert("Leaf Model's texture is null");
@@ -55,10 +61,10 @@ class LeafModel {
       program.uniformMatrix4fv(
          program.uniformLocations.mvMatrix,
          false,
-         modelViewMatrix);
+         curTrans);
 
       const normalMatrix = mat4.create();
-      mat4.invert(normalMatrix, modelViewMatrix);
+      mat4.invert(normalMatrix, curTrans);
       mat4.transpose(normalMatrix, normalMatrix);
 
       program.uniformMatrix4fv(
@@ -72,6 +78,10 @@ class LeafModel {
          const offset = 0;
          gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
       }
+   }
+
+   getCameraXfm() {
+      return null;
    }
 
    subdivide(reps, ftn) {

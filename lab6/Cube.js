@@ -10,6 +10,7 @@ class Cube extends LeafModel {
       let F4 = makeFace(mat4.rotateY(mat4.create(), mat4.create(), 3 * Math.PI / 2));
       let F5 = makeFace(mat4.rotateZ(mat4.create(), mat4.create(), Math.PI / 2));
       let F6 = makeFace(mat4.rotateZ(mat4.create(), mat4.create(), - Math.PI / 2));
+      
       vertices.push(...F1.verts, ...F2.verts, ...F3.verts, ...F4.verts, ...F5.verts, ...F6.verts);
       norms.push(...F1.normals, ...F2.normals, ...F3.normals, ...F4.normals, ...F5.normals, ...F6.normals);
 

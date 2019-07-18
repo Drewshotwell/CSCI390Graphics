@@ -1,5 +1,1 @@
-Determining the indices of the cylinder.
-
-Assigning the colors per vertex, vs per index.
-
-Linking the shader programs to the Lab with successful compilation is much more difficult than it seems.
+Recognizing that the transform within the render call is always a function that returns a mat4, never a constant mat4.

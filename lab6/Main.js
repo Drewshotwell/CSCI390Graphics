@@ -15,25 +15,27 @@ function main() {
 
    function getSource(url) {
       var req = new XMLHttpRequest();
-      
+
       req.open('GET', url, false);
       req.send(null);
-      
+
       return (req.status == 200) ? req.responseText : null;
    };
-   
+
    // Attribute names
    const attNames = ['vertPos', 'vertNormal', 'texCoord'];
-   
+
    // Uniform names
    const ufmNames = ['mvMatrix', 'prjMatrix', 'nrmMatrix', 'glbAmbient', 'texSampler',
       // Struct Names
       'light.diffuse', 'light.specular', 'light.position',
-      'tex.diffuse', 'tex.shininess'
+      'tex.diffuse', 'tex.shininess',
+      //'material.ambient', 'material.diffuse', 'material.specular', 'material.shininess'
    ];
 
    // Initialize program from class
-   const texShaderProgram = new ShaderProgram(gl, getSource('texVrtShader.glsl'), getSource('texFrgShader.glsl'), attNames, ufmNames);
+   //const texShaderProgram = new ShaderProgram(gl, getSource('texVrtShader.glsl'), getSource('texFrgShader.glsl'), attNames, ufmNames);
+   const shaderProg = new ShaderProgram(gl, getSource('TexVrtShader.glsl'), getSource('TexFrgShader.glsl'), attNames, ufmNames);
 
    // Textures
    const firefoxTex = new Texture(gl, 'cubetexture.png', 5, false, 'LINEAR');
@@ -41,17 +43,13 @@ function main() {
    const earthTex = new Texture(gl, 'earth_day.jpg', 0.7, false, 'LINEAR');
    const rockTex = new Texture(gl, 'rock.png', 1, true, 'LINEAR');
    const terrainTex = new Texture(gl, 'terrainAtlas.jpg', 1, false, 'LINEAR');
+   
 
    // Model creation
-   //const model = new CompoundModel();
-   //model.addChild(new Cylinder(gl, rockTex, 2, 10), mat4.scale(mat4.create(), mat4.create(), [1, 10, 1]));
-
-   // Landscape
-   /*const model = new Landscape(gl, terrainTex, 10, [
-      { farLeft: { x: 0, z: 0 }, nearRight: { x: 5, z: 5 }, tile: { row: 0, col: 6 } },
-      { farLeft: { x: 4, z: 4 }, nearRight: { x: 7, z: 7 }, tile: { row: 3, col: 4 } },
-   ]);*/
-   const model = new Cube(gl, woodTex);
+   //const model = new Cube(gl, woodTex);
+   //const model = new JackStack(gl, [Math.PI / 3, -Math.PI / 3, Math.PI / 4], woodTex);
+   //const model = new JackStackAttack(gl, woodTex);
+   const model = new TestAnimation(gl, woodTex);
 
    var objTransforms = {
       cameraTransforms: {
@@ -59,6 +57,7 @@ function main() {
          phi: 0,
          distance: 10
       },
+      camTrans: mat4.create(),
       lightTransforms: {
          theta: 0,
          phi: 0,
@@ -66,7 +65,7 @@ function main() {
       }
    }
 
-   drawScene(gl, texShaderProgram, model, objTransforms);
+   drawScene(gl, shaderProg, model, objTransforms);
 
    document.addEventListener('keydown', (event) => {
       switch (event.code) {
@@ -75,6 +74,7 @@ function main() {
             objTransforms.lightTransforms.theta -= Math.PI / 10;
          }
          else {
+            mat4.rotateY(objTransforms.camTrans, objTransforms.camTrans, Math.PI / 10);
             objTransforms.cameraTransforms.theta -= Math.PI / 10;
          }
          break;
@@ -83,6 +83,7 @@ function main() {
             objTransforms.lightTransforms.theta += Math.PI / 10;
          }
          else {
+            mat4.rotateY(objTransforms.camTrans, objTransforms.camTrans, -Math.PI / 10);
             objTransforms.cameraTransforms.theta += Math.PI / 10;
          }
          break;
@@ -91,6 +92,7 @@ function main() {
             objTransforms.lightTransforms.phi = objTransforms.lightTransforms.phi < Math.PI / 2 ? objTransforms.lightTransforms.phi + Math.PI / 10 : Math.PI / 2;
          }
          else {
+            mat4.rotateX(objTransforms.camTrans, objTransforms.camTrans, Math.PI / 10);
             objTransforms.cameraTransforms.phi = objTransforms.cameraTransforms.phi < Math.PI / 2 ? objTransforms.cameraTransforms.phi + Math.PI / 10 : Math.PI / 2;
          }
          break;
@@ -99,6 +101,7 @@ function main() {
             objTransforms.lightTransforms.phi = objTransforms.lightTransforms.phi > -Math.PI / 2 ? objTransforms.lightTransforms.phi - Math.PI / 10 : -Math.PI / 2;
          }
          else {
+            mat4.rotateX(objTransforms.camTrans, objTransforms.camTrans, -Math.PI / 10);
             objTransforms.cameraTransforms.phi = objTransforms.cameraTransforms.phi > -Math.PI / 2 ? objTransforms.cameraTransforms.phi - Math.PI / 10 : -Math.PI / 2;
          }
          break;
@@ -107,6 +110,7 @@ function main() {
             objTransforms.lightTransforms.distance--;
          }
          else {
+            mat4.translate(objTransforms.camTrans, objTransforms.camTrans, [0, 0, 1]);
             objTransforms.cameraTransforms.distance--;
          }
          break;
@@ -115,19 +119,33 @@ function main() {
             objTransforms.lightTransforms.distance++;
          }
          else {
+            mat4.translate(objTransforms.camTrans, objTransforms.camTrans, [0, 0, -1]);
             objTransforms.cameraTransforms.distance++;
          }
          break;
       }
-      drawScene(gl, texShaderProgram, model, objTransforms);
    });
+
+   // Draw the scene repeatedly at 24fps
+   /*var fps = 24;
+   function doFrame(timeStamp) {
+      var time = timeStamp * 0.001;  // convert to seconds;
+
+      setTimeout(function () {
+         drawScene(gl, shaderProg, model, objTransforms, time);
+         if (time < 30) {
+            requestAnimationFrame(doFrame);
+         }
+      }, 1000 / fps);
+   }
+   requestAnimationFrame(doFrame);*/
 }
 
 //
 // Draw the scene.
 //
-function drawScene(gl, program, model, objTransforms) {
-   gl.clearColor(0.6, 0.8, 1.0, 1.0);  // Clear to black, fully opaque
+function drawScene(gl, program, model, objTransforms, time) {
+   gl.clearColor(0.6, 0.8, 1.0, 1.0);  // Clear to sky
    gl.clearDepth(1.0);                 // Clear everything
    gl.enable(gl.DEPTH_TEST);           // Enable depth testing
    gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
@@ -135,28 +153,21 @@ function drawScene(gl, program, model, objTransforms) {
    // Clear the canvas before we start drawing on it.
    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-   // Create a perspective matrix, a special matrix that is
-   // used to simulate the distortion of perspective in a camera.
-   // Our field of view is 45 degrees, with a width/height
-   // ratio that matches the display size of the canvas
-   // and we only want to see objects between 0.1 units
-   // and 100 units away from the camera.
+   // Create a perspective matrix
    const fieldOfView = 45 * Math.PI / 180;   // in radians
    const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
    const zNear = 0.1;
    const zFar = 100.0;
    const projectionMatrix = mat4.create();
-
-   // note: glmatrix.js always has the first argument
-   // as the destination to receive the result.
    mat4.perspective(projectionMatrix,
       fieldOfView,
       aspect,
       zNear,
       zFar);
-   
+
+   // Global ambient to be bound in the shader program
    const globalAmbient = [0.5, 0.5, 0.5, 1.0];
-   
+
    // Tell WebGL to use our program when drawing
    program.use();
 
@@ -165,12 +176,12 @@ function drawScene(gl, program, model, objTransforms) {
       program.uniformLocations.prjMatrix,
       false,
       projectionMatrix);
-   
+
    // Global ambient light
    program.uniform4fv(
       program.uniformLocations.glbAmbient,
       globalAmbient);
-   
+
    // Declared light position using light rotations
    const lightRadius = objTransforms.lightTransforms.distance;
    const lightPos = [
@@ -180,19 +191,29 @@ function drawScene(gl, program, model, objTransforms) {
    ];
 
    // Establish camera direction
-   const cameraDir = [0, 0, -1];
+   const cameraXfm = model.getCameraXfm();
+   console.log(cameraXfm(0));
 
    // Camera Transforms (last transforms in code sequence made first)
-   var viewTransform = mat4.create();
-   mat4.translate(viewTransform, viewTransform, vec3.scale(vec3.create(), cameraDir, objTransforms.cameraTransforms.distance));
-   mat4.rotateX(viewTransform, viewTransform, objTransforms.cameraTransforms.phi);
-   mat4.rotateY(viewTransform, viewTransform, -objTransforms.cameraTransforms.theta);
+   var viewTransform = function (time) {
+      const trans = mat4.create();
+      //mat4.multiply(trans, trans, objTransforms.camTrans);
+      mat4.multiply(trans, trans, cameraXfm(time));
+      return trans;
+   };
+   
 
    // vec3 * mat4 -> vec3
-   vec3.transformMat4(Light.stdLight.position, lightPos, viewTransform);
+   vec3.transformMat4(Light.stdLight.position, lightPos, viewTransform(time));
+   
+   // Modelview Transform function
+   const modelTransform = mat4.create();
+   var modelViewTransform = function (time) {
+      return mat4.multiply(mat4.create(), viewTransform(time), modelTransform);
+   }
    
    // Standard light
    Light.stdLight.setUniform(program, 'light');
-      
-   model.render(gl, program, viewTransform);
+
+   model.render(time, gl, program, modelViewTransform);
 }

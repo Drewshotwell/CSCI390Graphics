@@ -44,10 +44,6 @@ class BandedSphere extends LeafModel {
          0.5, 1,
       );
 
-      /*console.log(Math.max(...idxs));
-      console.log(vertices.length / 3);
-      console.log(txtCrds.length / 2);*/
-
       // Non-polar sphere
       for (let latdx = 0; latdx < latN - 2; latdx++) {
          for (let longdx = 0; longdx < longN; longdx++) {
@@ -64,20 +60,6 @@ class BandedSphere extends LeafModel {
             vertices.length / 3 - 2, poldx, (poldx + 1) % longN,
             vertices.length / 3 - 1, (latN - 2) * (longN + 1) + poldx, (latN - 2) * (longN + 1) + ((poldx + 1) % longN)
          );
-      }
-
-      
-
-      for (let i = 0; i < idxs.length; i += 3){
-         console.log(i / 3, " ", idxs[i], idxs[i + 1], idxs[i + 2]);
-      }
-
-      for (let i = 0; i < vertices.length; i += 3){
-         console.log(i / 3, " ", vertices[i], vertices[i + 1], vertices[i + 2]);
-      }
-
-      for (let i = 0; i < txtCrds.length; i += 2){
-         console.log(i / 2, " ", txtCrds[i], txtCrds[i + 1]);
       }
       
       norms = vertices;
