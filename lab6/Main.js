@@ -65,7 +65,7 @@ function main() {
       }
    }
 
-   drawScene(gl, shaderProg, model, objTransforms);
+   drawScene(gl, shaderProg, model, objTransforms, 0);
 
    document.addEventListener('keydown', (event) => {
       switch (event.code) {
@@ -127,7 +127,7 @@ function main() {
    });
 
    // Draw the scene repeatedly at 24fps
-   /*var fps = 24;
+   var fps = 24;
    function doFrame(timeStamp) {
       var time = timeStamp * 0.001;  // convert to seconds;
 
@@ -138,7 +138,7 @@ function main() {
          }
       }, 1000 / fps);
    }
-   requestAnimationFrame(doFrame);*/
+   requestAnimationFrame(doFrame);
 }
 
 //
@@ -196,14 +196,10 @@ function drawScene(gl, program, model, objTransforms, time) {
    // Camera Transforms (last transforms in code sequence made first)
    var viewTransform = function (time) {
       const trans = mat4.create();
-      //mat4.multiply(trans, trans, objTransforms.camTrans);
-      mat4.multiply(trans, trans, cameraXfm);
+      mat4.multiply(trans, trans, mat4.invert(cameraXfm, cameraXfm));
       return trans;
    };
-   
-   // vec3 * mat4 -> vec3
-   vec3.transformMat4(Light.stdLight.position, lightPos, viewTransform(time));
-   
+
    // Modelview Transform function
    const modelTransform = mat4.create();
    var modelViewTransform = function (time) {
@@ -211,7 +207,10 @@ function drawScene(gl, program, model, objTransforms, time) {
    }
    
    // Standard light
+   // vec3 * mat4 -> vec3
+   vec3.transformMat4(Light.stdLight.position, lightPos, viewTransform(time));
    Light.stdLight.setUniform(program, 'light');
+   
 
    model.render(time, gl, program, modelViewTransform);
 }

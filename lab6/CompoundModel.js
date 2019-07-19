@@ -11,6 +11,7 @@ class CompoundModel {
       for (let leaf of this.collection) {
          leaf.model.render(time, gl, prgInfo,
             function (time) {
+               console.log(mat4.multiply(mat4.create(), transform(time), leaf.transform(time)));
                return mat4.multiply(mat4.create(), transform(time), leaf.transform(time));
             }
          );
@@ -21,10 +22,8 @@ class CompoundModel {
       for (let leaf of this.collection) {
          const camXfm = leaf.model.getCameraXfm();
          if (camXfm) { // Found a camera, begin multiplication string
-            for (let subLeaf of this.collection) {
-               mat4.multiply(camXfm, camXfm, subLeaf.transform(time));
-            }
-            return camXfm;
+            const trans = mat4.multiply(camXfm, camXfm, leaf.transform(time));
+            return trans;
          }
       }
       return null;
@@ -43,7 +42,7 @@ class TestAnimation extends CompoundModel {
       
       super.addChild(new Jack(gl, texture), function (time) {
          const trans = mat4.create();
-         //mat4.rotateY(trans, trans, (Math.PI / 4) * time);
+         mat4.rotateY(trans, trans, (Math.PI / 4) * time);
          return trans;
       });
    }
