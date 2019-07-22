@@ -34,8 +34,7 @@ class LeafModel {
       this.modelInfo['indexBuf'] = indexBuffer;
    }
 
-   render(time, gl, program, transFtn) {
-      const curTrans = transFtn(time);
+   render(time, gl, program, transform) {
       if (this.texture != null) {
          this.texture.setUniform(gl, program, 'tex');
       }
@@ -61,10 +60,10 @@ class LeafModel {
       program.uniformMatrix4fv(
          program.uniformLocations.mvMatrix,
          false,
-         curTrans);
+         transform);
 
       const normalMatrix = mat4.create();
-      mat4.invert(normalMatrix, curTrans);
+      mat4.invert(normalMatrix, transform);
       mat4.transpose(normalMatrix, normalMatrix);
 
       program.uniformMatrix4fv(

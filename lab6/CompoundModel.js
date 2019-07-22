@@ -10,20 +10,16 @@ class CompoundModel {
    render(time, gl, prgInfo, transform) {
       for (let leaf of this.collection) {
          leaf.model.render(time, gl, prgInfo,
-            function (time) {
-               console.log(mat4.multiply(mat4.create(), transform(time), leaf.transform(time)));
-               return mat4.multiply(mat4.create(), transform(time), leaf.transform(time));
-            }
-         );
+            mat4.multiply(mat4.create(), transform, leaf.transform(time)));
       }
    }
 
    getCameraXfm(time) {
       for (let leaf of this.collection) {
-         const camXfm = leaf.model.getCameraXfm();
-         if (camXfm) { // Found a camera, begin multiplication string
-            const trans = mat4.multiply(camXfm, camXfm, leaf.transform(time));
-            return trans;
+         const curTrans = leaf.transform(time);
+         const cameraXfm = leaf.model.getCameraXfm(time);
+         if (cameraXfm) {
+            return mat4.multiply(mat4.create(), curTrans, cameraXfm);
          }
       }
       return null;
@@ -34,16 +30,19 @@ class TestAnimation extends CompoundModel {
    constructor(gl, texture) {
       super();
       
-      super.addChild(new Camera(), function (time) {
-         const trans = mat4.create();
-         mat4.translate(trans, trans, [0, 0, 10]);
-         return trans;
-      });
-      
-      super.addChild(new Jack(gl, texture), function (time) {
-         const trans = mat4.create();
-         mat4.rotateY(trans, trans, (Math.PI / 4) * time);
-         return trans;
+      const jsa = new JackStackAttack(gl, texture);
+
+      const pivotJack = jsa.collection[1].model.collection[1].model;
+
+      this.camera = {
+         model: new Camera(),
+         transform: (time) => mat4.translate(mat4.create(), mat4.create(), [0, 0, 5])
+      };
+
+      pivotJack.addChild(this.camera.model, this.camera.transform);
+
+      super.addChild(jsa, function (time) {
+         return mat4.create();
       });
    }
 }

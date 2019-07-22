@@ -1,11 +1,18 @@
 class Camera extends LeafModel {
-   constructor() {
+   constructor(trans) {
       super(null);
+      this.trans = mat4.create();
    }
 
-   render(time, gl, program, transFtn) {}
+   render(time, gl, program, transform) {
+      console.log(mat4.str(transform));
+   }
 
    getCameraXfm() {
-      return mat4.create();
+      return this.trans;
+   }
+
+   transform(newTrans) {
+      this.trans = newTrans;
    }
 }

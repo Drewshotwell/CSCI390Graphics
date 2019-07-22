@@ -1,1 +1,1 @@
-Recognizing that the transform within the render call is always a function that returns a mat4, never a constant mat4.
+Thinking that every transform matrix should be a function, whereas only a compound model's transforms are functions.

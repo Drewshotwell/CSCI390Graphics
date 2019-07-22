@@ -2,7 +2,9 @@ class Jack extends CompoundModel {
    constructor(gl, texture) {
       super();
 
-      const bar = new Cylinder(gl, texture, 1, 1);
+      const bar1 = new Cylinder(gl, texture, 1, 1);
+      const bar2 = new Cylinder(gl, texture, 1, 1);
+      const bar3 = new Cylinder(gl, texture, 1, 1);
 
       const transFtn1 = function (time) {
          const trans = mat4.create();
@@ -22,9 +24,9 @@ class Jack extends CompoundModel {
          return trans;
       }
 
-      super.addChild(bar, transFtn1);
-      super.addChild(bar, transFtn2);
-      super.addChild(bar, transFtn3);
+      super.addChild(bar1, transFtn1);
+      super.addChild(bar2, transFtn2);
+      super.addChild(bar3, transFtn3);
    }
 }
 
@@ -32,7 +34,9 @@ class JackStack extends CompoundModel {
    constructor(gl, [rot1, rot2, rot3], texture) {
       super();
 
-      const jack = new Jack(gl, texture);
+      const jack1 = new Jack(gl, texture);
+      const jack2 = new Jack(gl, texture);
+      const jack3 = new Jack(gl, texture);
       
       var transFtn1 = function(time) {
          const trans1 = mat4.create();
@@ -55,9 +59,9 @@ class JackStack extends CompoundModel {
          return trans3;
       }
 
-      super.addChild(jack, transFtn1);
-      super.addChild(jack, transFtn2);
-      super.addChild(jack, transFtn3);
+      super.addChild(jack1, transFtn1);
+      super.addChild(jack2, transFtn2);
+      super.addChild(jack3, transFtn3);
    }
 }
 

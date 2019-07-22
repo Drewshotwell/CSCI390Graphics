@@ -1,0 +1,1 @@
+Thinking that every transform matrix should be a function, whereas only a compound model's transforms are functions.
