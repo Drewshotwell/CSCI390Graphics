@@ -76,14 +76,14 @@ class ShaderProgram {
       const offset = 0;
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buf);
       this.gl.vertexAttribPointer(
-         name,
+         this.attribLocations[name],
          dim,
          type,
          normalize,
          stride,
          offset);
       this.gl.enableVertexAttribArray(
-         name);
+         this.attribLocations[name]);
    }
 
    // Connect the indices attribute to VBO |buf|, which is already filled.
@@ -94,26 +94,26 @@ class ShaderProgram {
    // Put into uniform |name| the value |val|. Five different methods are provided
    // for various single, vector, or matrix types of |val|.
    uniform1f(name, val) {
-      this.gl.uniform1f(name, val);
+      this.gl.uniform1f(this.uniformLocations[name], val);
    }
 
    uniform3fv(name, val) {
-      this.gl.uniform3fv(name, val);
+      this.gl.uniform3fv(this.uniformLocations[name], val);
    }
 
    uniform4fv(name, val) {
-      this.gl.uniform4fv(name, val);
+      this.gl.uniform4fv(this.uniformLocations[name], val);
    }
 
    uniformMatrix4fv(name, trans, val) {
-      this.gl.uniformMatrix4fv(name, trans, val);
+      this.gl.uniformMatrix4fv(this.uniformLocations[name], trans, val);
    }
 
    uniform1i(name, val) {
-      this.gl.uniform1i(name, val);
+      this.gl.uniform1i(this.uniformLocations[name], val);
    }
    
-   getSource(url) {
+   static getSource(url) {
       var req = new XMLHttpRequest();
 
       req.open("GET", url, false);

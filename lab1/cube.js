@@ -49,9 +49,14 @@ function makeCubeModel(gl) {
 function computeColor(x, y, z) {
    var r, g, b;
 
-   r = (x + 1) / 2;
+   /*r = (x + 1) / 2;
    g = (y + 1) / 2;
-   b = (z + 1) / 2;
+   b = (z + 1) / 2;*/
+
+   r = 0.5 + (y - x - z) / 6.0;
+   g = 0.5 + (z - x - y) / 6.0;
+   b = 0.5 + (x - y - z) / 6.0;
+  
 
    return [r, g, b, 1.0];
 }

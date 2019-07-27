@@ -13,51 +13,24 @@ function main() {
       return;
    }
 
-   function getSource(url) {
-      var req = new XMLHttpRequest();
-
-      req.open('GET', url, false);
-      req.send(null);
-
-      return (req.status == 200) ? req.responseText : null;
-   };
-
    // Attribute names
-   const attNames = ['vertPos', 'vertNormal', 'texCoord'];
+   const attNames = ['vertPos', 'vertNormal', 'texCoord', 'vertTangent'];
 
    // Uniform names
-   const ufmNames = ['mvMatrix', 'prjMatrix', 'nrmMatrix', 'glbAmbient', 'texSampler',
+   const ufmNames = ['mvMatrix', 'prjMatrix', 'nrmMatrix', 'glbAmbient',
       // Struct Names
       'light.diffuse', 'light.specular', 'light.position',
-      'tex.diffuse', 'tex.shininess',
+      'tex.diffuse', 'tex.normMap', 'tex.heightMap', 'tex.roughMap', 'tex.occMap','tex.maxHeight',
       //'material.ambient', 'material.diffuse', 'material.specular', 'material.shininess'
    ];
 
    // Initialize program from class
    //const texShaderProgram = new ShaderProgram(gl, getSource('texVrtShader.glsl'), getSource('texFrgShader.glsl'), attNames, ufmNames);
-   const shaderProg = new ShaderProgram(gl, getSource('TexVrtShader.glsl'), getSource('TexFrgShader.glsl'), attNames, ufmNames);
-
-   // Textures
-   const firefoxTex = new Texture(gl, 'cubetexture.png', 5, false, 'LINEAR');
-   const woodTex = new Texture(gl, 'wood.jpg', 0.5, true, 'LINEAR');
-   const earthTex = new Texture(gl, 'earth_day.jpg', 0.7, false, 'LINEAR');
-   const rockTex = new Texture(gl, 'rock.png', 1, true, 'LINEAR');
-   const terrainTex = new Texture(gl, 'terrainAtlas.jpg', 1, false, 'LINEAR');
-
+   const shaderProg = new ShaderProgram(gl, ShaderProgram.getSource('TexVrtShader.glsl'), ShaderProgram.getSource('TexFrgShader.glsl'), attNames, ufmNames);
 
    // Model creation
-   //const model = new Cube(gl, woodTex);
-   //const model = new JackStack(gl, [Math.PI / 3, -Math.PI / 3, Math.PI / 4], woodTex);
-   //const model = new JackStackAttack(gl, woodTex);
-   const model = new TestAnimation(gl, woodTex);
+   const model = new TestAnimation(gl);
 
-   var cameraTransforms = {
-      theta: 0,
-      phi: 0,
-      distance: 0
-   };
-
-   var camTrans = mat4.create();
    var lightTrans = {
       theta: 0,
       phi: 0,
@@ -77,9 +50,6 @@ function main() {
             else if (event.altKey) {
                reverse = true;
             }
-            else {
-               cameraTransforms.theta -= Math.PI / 10;
-            }
             break;
          case 'ArrowRight':
             if (event.shiftKey) {
@@ -88,46 +58,33 @@ function main() {
             else if (event.altKey) {
                reverse = false;
             }
-            else {
-               cameraTransforms.theta += Math.PI / 10;
-            }
             break;
          case 'ArrowUp':
             if (event.shiftKey) {
-               lightTrans.phi = lightTrans.phi < Math.PI / 2 ? lightTrans.phi + Math.PI / 10 : Math.PI / 2;
+               lightTrans.phi = lightTrans.phi < Math.PI / 2 ?
+                  lightTrans.phi + Math.PI / 10 : Math.PI / 2;
             }
             else if (event.altKey && pause) {
                time += 1.0 / fps;
             }
-            else {
-               cameraTransforms.phi = cameraTransforms.phi < Math.PI / 2 ? cameraTransforms.phi + Math.PI / 10 : Math.PI / 2;
-            }
             break;
          case 'ArrowDown':
             if (event.shiftKey) {
-               lightTrans.phi = lightTrans.phi > -Math.PI / 2 ? lightTrans.phi - Math.PI / 10 : -Math.PI / 2;
+               lightTrans.phi = lightTrans.phi > -Math.PI / 2 ?
+                  lightTrans.phi - Math.PI / 10 : -Math.PI / 2;
             }
             else if (event.altKey && pause) {
                time -= 1.0 / fps;
-            }
-            else {
-               cameraTransforms.phi = cameraTransforms.phi > -Math.PI / 2 ? cameraTransforms.phi - Math.PI / 10 : -Math.PI / 2;
             }
             break;
          case 'KeyA':
             if (event.shiftKey) {
                lightTrans.distance--;
             }
-            else {
-               cameraTransforms.distance--;
-            }
             break;
          case 'KeyS':
             if (event.shiftKey) {
                lightTrans.distance++;
-            }
-            else {
-               cameraTransforms.distance++;
             }
             break;
          case 'Space':
@@ -137,13 +94,7 @@ function main() {
             }
             break;
       }
-      
-      camTrans = mat4.create();
-      mat4.translate(camTrans, camTrans, [0, 0, cameraTransforms.distance]);
-      mat4.rotateX(camTrans, camTrans, cameraTransforms.phi);
-      mat4.rotateY(camTrans, camTrans, -cameraTransforms.theta);
-      
-      model.camera.model.transform(camTrans);
+
       drawScene(gl, shaderProg, model, lightTrans, time);
    });
 
@@ -152,7 +103,6 @@ function main() {
    function doFrame(timeStamp) {
       //time += timeStamp * 0.001;  // convert to seconds;
       time = !reverse ? time + 1 / fps : time - 1 / fps;  // convert to seconds;
-                
       setTimeout(function () {
          drawScene(gl, shaderProg, model, lightTrans, time);
          if (time < 30 && !pause) {
@@ -190,20 +140,29 @@ function drawScene(gl, program, model, lightTrans, time) {
    // Global ambient to be bound in the shader program
    const globalAmbient = [0.5, 0.5, 0.5, 1.0];
 
+   // Sky box projection matrix uniform with its respective shader program
+   if (model.skyBox) {
+      model.skyBox.program.use();
+      model.skyBox.program.uniformMatrix4fv(
+         'prjMatrix',
+         false,
+         projectionMatrix);
+   }
+      
    // Tell WebGL to use our program when drawing
    program.use();
-
+   
    // Projection Matrix
    program.uniformMatrix4fv(
-      program.uniformLocations.prjMatrix,
+      'prjMatrix',
       false,
       projectionMatrix);
-
+      
    // Global ambient light
    program.uniform4fv(
-      program.uniformLocations.glbAmbient,
+      'glbAmbient',
       globalAmbient);
-
+   
    // Declared light position using light rotations
    const lightRadius = lightTrans.distance;
    const lightPos = [

@@ -12,8 +12,8 @@ class Light {
 
    setUniform(program, name) {
       program.use();
-      program.uniform4fv(program.uniformLocations[`${name}.diffuse`], this.diffuse);
-      program.uniform4fv(program.uniformLocations[`${name}.specular`], this.specular);
-      program.uniform3fv(program.uniformLocations[`${name}.position`], this.position);
+      program.uniform4fv(`${name}.diffuse`, this.diffuse);
+      program.uniform4fv(`${name}.specular`, this.specular);
+      program.uniform3fv(`${name}.position`, this.position);
    }
 }

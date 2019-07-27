@@ -36,7 +36,9 @@ class TestAnimation extends CompoundModel {
 
       this.camera = {
          model: new Camera(),
-         transform: (time) => mat4.translate(mat4.create(), mat4.create(), [0, 0, 5])
+         transform: function (time) {
+            return mat4.translate(mat4.create(), mat4.create(), [0, 0, 5]);
+         }
       };
 
       pivotJack.addChild(this.camera.model, this.camera.transform);

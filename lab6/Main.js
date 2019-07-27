@@ -51,13 +51,6 @@ function main() {
    //const model = new JackStackAttack(gl, woodTex);
    const model = new TestAnimation(gl, woodTex);
 
-   var cameraTransforms = {
-      theta: 0,
-      phi: 0,
-      distance: 0
-   };
-
-   var camTrans = mat4.create();
    var lightTrans = {
       theta: 0,
       phi: 0,
@@ -77,9 +70,6 @@ function main() {
             else if (event.altKey) {
                reverse = true;
             }
-            else {
-               cameraTransforms.theta -= Math.PI / 10;
-            }
             break;
          case 'ArrowRight':
             if (event.shiftKey) {
@@ -88,46 +78,33 @@ function main() {
             else if (event.altKey) {
                reverse = false;
             }
-            else {
-               cameraTransforms.theta += Math.PI / 10;
-            }
             break;
          case 'ArrowUp':
             if (event.shiftKey) {
-               lightTrans.phi = lightTrans.phi < Math.PI / 2 ? lightTrans.phi + Math.PI / 10 : Math.PI / 2;
+               lightTrans.phi = lightTrans.phi < Math.PI / 2 ?
+                  lightTrans.phi + Math.PI / 10 : Math.PI / 2;
             }
             else if (event.altKey && pause) {
                time += 1.0 / fps;
             }
-            else {
-               cameraTransforms.phi = cameraTransforms.phi < Math.PI / 2 ? cameraTransforms.phi + Math.PI / 10 : Math.PI / 2;
-            }
             break;
          case 'ArrowDown':
             if (event.shiftKey) {
-               lightTrans.phi = lightTrans.phi > -Math.PI / 2 ? lightTrans.phi - Math.PI / 10 : -Math.PI / 2;
+               lightTrans.phi = lightTrans.phi > -Math.PI / 2 ?
+                  lightTrans.phi - Math.PI / 10 : -Math.PI / 2;
             }
             else if (event.altKey && pause) {
                time -= 1.0 / fps;
-            }
-            else {
-               cameraTransforms.phi = cameraTransforms.phi > -Math.PI / 2 ? cameraTransforms.phi - Math.PI / 10 : -Math.PI / 2;
             }
             break;
          case 'KeyA':
             if (event.shiftKey) {
                lightTrans.distance--;
             }
-            else {
-               cameraTransforms.distance--;
-            }
             break;
          case 'KeyS':
             if (event.shiftKey) {
                lightTrans.distance++;
-            }
-            else {
-               cameraTransforms.distance++;
             }
             break;
          case 'Space':
@@ -137,13 +114,7 @@ function main() {
             }
             break;
       }
-      
-      camTrans = mat4.create();
-      mat4.translate(camTrans, camTrans, [0, 0, cameraTransforms.distance]);
-      mat4.rotateX(camTrans, camTrans, cameraTransforms.phi);
-      mat4.rotateY(camTrans, camTrans, -cameraTransforms.theta);
-      
-      model.camera.model.transform(camTrans);
+
       drawScene(gl, shaderProg, model, lightTrans, time);
    });
 
@@ -152,7 +123,9 @@ function main() {
    function doFrame(timeStamp) {
       //time += timeStamp * 0.001;  // convert to seconds;
       time = !reverse ? time + 1 / fps : time - 1 / fps;  // convert to seconds;
-                
+      if (timeStamp < 5000) {
+         console.log(Math.floor(timeStamp / 1000));
+      }
       setTimeout(function () {
          drawScene(gl, shaderProg, model, lightTrans, time);
          if (time < 30 && !pause) {
@@ -216,6 +189,7 @@ function drawScene(gl, program, model, lightTrans, time) {
    const cameraXfm = model.getCameraXfm(time);
    const mvTransform = mat4.create();
    mat4.invert(mvTransform, cameraXfm);
+   //console.log(model.camera.transform(time));
 
    // Standard light
    // vec3 * mat4 -> vec3

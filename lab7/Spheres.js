@@ -1,19 +1,57 @@
 class BandedSphere extends LeafModel {
-   constructor(gl, texture, latNum, longNum) {
+   constructor(gl, texture, latN, longN) {
       super(texture);
-      this.latNum = latNum;
-      this.longNum = longNum;
-      this.makeModel();
-      super.makeVBOs(gl);
-   }
-
-   makeModel() {
-      var vertices = [], norms = [];
+      
+      var vertices = [], norms = [], tangs = [];
       var idxs = [];
       var txtCrds = [];
 
-      const latN = this.latNum;
-      const longN = this.longNum;
+      /*for (let longK = 0; longK <= longN; longK++) {
+         for (let latK = 0; latK <= latN; latK++) {
+
+            const long = -Math.PI + 2 * Math.PI * longK / longN;
+            const lat = -Math.PI / 2 + Math.PI * latK / latN;
+
+            const theta = long;
+            const phi = lat + Math.PI / 2;
+
+            vertices.push(
+               Math.sin(phi) * Math.cos(theta),
+               Math.cos(phi),
+               Math.sin(phi) * Math.sin(theta),
+            );
+
+            //console.log(phi, theta,
+               Math.sin(phi) * Math.cos(theta),
+               Math.cos(phi),
+               Math.sin(phi) * Math.sin(theta),
+            //);
+            txtCrds.push(
+               1 - longK / longN,
+               1 - 0.5 * (Math.cos(phi) + 1),
+            );
+         }
+      }*/
+
+      // Non-polar sphere
+      /*for (let longdx = 0; longdx <= longN; longdx++) {
+         for (let latdx = 0; latdx <= latN; latdx++) {
+            idxs.push(
+               longdx * (latN + 1) + latdx, longdx * (latN + 1) + (latdx + 1), (longdx + 1) * (latN + 1) + latdx,
+               longdx * (latN + 1) + (latdx + 1), (longdx + 1) * (latN + 1) + latdx, (longdx + 1) * (latN + 1) + (latdx + 1),
+            );
+         }
+      }*/
+
+      // Poles
+      /*for (let longdx = 0; longdx <= longN; longdx++) {
+         idxs.push(
+            longdx * latN, longdx * latN + 1, (longdx + 1) * latN + 1,
+         );
+      }*/
+
+      //console.log(vertices);
+
       for (let latK = 1; latK < latN; latK++) {
          for (let longK = 0; longK <= longN; longK++) {
 
@@ -21,7 +59,7 @@ class BandedSphere extends LeafModel {
             const lat = -Math.PI / 2 + Math.PI * latK / latN;
 
             const theta = long;
-            const phi = lat + Math.PI / 2
+            const phi = lat + Math.PI / 2;
 
             vertices.push(
                Math.sin(phi) * Math.cos(theta),
@@ -30,7 +68,7 @@ class BandedSphere extends LeafModel {
             );
             txtCrds.push(
                1 - longK / longN,
-               1 - 0.5*(Math.cos(phi) + 1),
+               1 - 0.5 * (Math.cos(phi) + 1),
             );
          }
       }
@@ -43,10 +81,6 @@ class BandedSphere extends LeafModel {
          0.5, 0,
          0.5, 1,
       );
-
-      /*console.log(Math.max(...idxs));
-      console.log(vertices.length / 3);
-      console.log(txtCrds.length / 2);*/
 
       // Non-polar sphere
       for (let latdx = 0; latdx < latN - 2; latdx++) {
@@ -65,28 +99,25 @@ class BandedSphere extends LeafModel {
             vertices.length / 3 - 1, (latN - 2) * (longN + 1) + poldx, (latN - 2) * (longN + 1) + ((poldx + 1) % longN)
          );
       }
-
-      
-
-      for (let i = 0; i < idxs.length; i += 3){
-         console.log(i / 3, " ", idxs[i], idxs[i + 1], idxs[i + 2]);
-      }
-
-      for (let i = 0; i < vertices.length; i += 3){
-         console.log(i / 3, " ", vertices[i], vertices[i + 1], vertices[i + 2]);
-      }
-
-      for (let i = 0; i < txtCrds.length; i += 2){
-         console.log(i / 2, " ", txtCrds[i], txtCrds[i + 1]);
-      }
       
       norms = vertices;
 
-      super.modelInfo = {
-         positions: vertices,
-         normals: norms,
-         indices: idxs,
-         texCoords: txtCrds,
+      for (let i = 0; i < norms.length; i += 3) {
+         const n = [norms[i], norms[i + 1], norms[i + 2]];
+         if (n[0] == 0 && n[1] == 1 && n[2] == 0 || n[0] == 0 && n[1] == -1 && n[2] == 0) {
+            tangs.push(0, 0, -1);
+         }
+         else {
+            tangs.push(...vec3.cross(vec3.create(), [0, 1, 0], n));
+         }
       }
+
+      this.positions = vertices;
+      this.indices = idxs;
+      this.properties['vertNormal'] = super.setProperty(norms, gl.FLOAT, 3);
+      this.properties['texCoord'] = super.setProperty(txtCrds, gl.FLOAT, 2);
+      this.properties['vertTangent'] = super.setProperty(tangs, gl.FLOAT, 3);
+
+      super.makeVBOs(gl);
    }
 }
