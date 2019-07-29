@@ -14,8 +14,6 @@ class Landscape extends LeafModel {
          }
       }
 
-      //let modN;
-
       for (let zCoord = -2, modZ = 0; Math.abs(2 - zCoord) > 0.001; zCoord += 4 / dim, modZ = (modZ + 1) % 2) {
          for (let xCoord = -2, modX = 0; Math.abs(2 - xCoord) > 0.001; xCoord += 4 / dim, modX = (modX + 1) % 2) {
             vertices.push(

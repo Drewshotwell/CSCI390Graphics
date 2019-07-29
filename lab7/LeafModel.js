@@ -1,64 +1,64 @@
 class LeafModel {
    constructor(texture) {
+      this.positions = [];
+      this.indices = [];
+      this.properties = {};
       this.texture = texture;
-      if (texture) {
-         this.modelInfo = {
-            positions: [],
-            normals: [],
-            indices: [],
-            texCoords: []
-         }
-      }
    }
 
    makeVBOs(gl) {
-      const positionBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.modelInfo.positions), gl.STATIC_DRAW);
+      this.posBuf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.posBuf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.positions), gl.STATIC_DRAW);
 
-      const normalBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.modelInfo.normals), gl.STATIC_DRAW);
+      this.indexBuf = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuf);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);
 
-      const texCoordBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.modelInfo.texCoords), gl.STATIC_DRAW);
+      for (let p in this.properties) {
+         //console.log(p);
+         this.properties[p]['buf'] = gl.createBuffer();
+         gl.bindBuffer(gl.ARRAY_BUFFER, this.properties[p].buf);
+         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.properties[p].vals), gl.STATIC_DRAW);
+      }
+   }
 
-      const indexBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.modelInfo.indices), gl.STATIC_DRAW);
-
-      this.modelInfo['posBuf'] = positionBuffer;
-      this.modelInfo['normBuf'] = normalBuffer;
-      this.modelInfo['texCoordBuf'] = texCoordBuffer;
-      this.modelInfo['indexBuf'] = indexBuffer;
+   setProperty(vals, type, numComponents) {
+      return { vals, type, numComponents }
    }
 
    render(time, gl, program, transform) {
+      
       if (this.texture != null) {
          this.texture.setUniform(gl, program, 'tex');
       }
-      else if (this.material != null) {
-         this.material.setUniform(gl, program, 'material');
-      }
       else {
-         alert("Leaf Model's texture is null");
+         //alert("Leaf Model's has no texture");
       }
-
+      
       // Set attributes for vertices and normals
-      program.setAtt(program.attribLocations.vertPos, this.modelInfo.posBuf, 3, gl.FLOAT, false);
-      program.setAtt(program.attribLocations.vertNormal, this.modelInfo.normBuf, 3, gl.FLOAT, false);
-      program.setAtt(program.attribLocations.texCoord, this.modelInfo.texCoordBuf, 2, gl.FLOAT, true);
-
       // Tell WebGL which indices to use to index the vertices
-      program.setIndices(this.modelInfo.indexBuf);
+      program.setAtt('vertPos', this.posBuf, 3, gl.FLOAT, false);
+      program.setIndices(this.indexBuf);
 
+      for (let p in this.properties) {
+         if (this.properties[p])
+            program.setAtt(
+               p,
+               this.properties[p].buf,
+               this.properties[p].numComponents,
+               this.properties[p].type,
+               false,
+            );
+      }
+      
+      
       // Tell WebGL to use our program when drawing
       program.use();
 
       // Set the shader uniforms
       program.uniformMatrix4fv(
-         program.uniformLocations.mvMatrix,
+         'mvMatrix',
          false,
          transform);
 
@@ -67,12 +67,12 @@ class LeafModel {
       mat4.transpose(normalMatrix, normalMatrix);
 
       program.uniformMatrix4fv(
-         program.uniformLocations.nrmMatrix,
+         'nrmMatrix',
          false,
          normalMatrix);
 
       {
-         const vertexCount = this.modelInfo.indices.length;
+         const vertexCount = this.indices.length;
          const type = gl.UNSIGNED_SHORT;
          const offset = 0;
          gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
@@ -90,12 +90,12 @@ class LeafModel {
          var newIndices = [];
 
          // Stamp current index length as not to cause an infinte loop
-         const curIdxLen = this.modelInfo.indices.length;
+         const curIdxLen = this.indices.length;
 
          // Copy of vertices in an array of arrays
          var vertArr = [];
-         for (let vdx = 0; vdx < this.modelInfo.positions.length; vdx += 3) {
-            vertArr.push([this.modelInfo.positions[vdx], this.modelInfo.positions[vdx + 1], this.modelInfo.positions[vdx + 2]]);
+         for (let vdx = 0; vdx < this.positions.length; vdx += 3) {
+            vertArr.push([this.positions[vdx], this.positions[vdx + 1], this.positions[vdx + 2]]);
          }
 
          // Construction per-triangle of new indices
@@ -110,9 +110,9 @@ class LeafModel {
             }
 
             // Original indices
-            var a = this.modelInfo.indices[idxIndex];
-            var b = this.modelInfo.indices[idxIndex + 1];
-            var c = this.modelInfo.indices[idxIndex + 2];
+            var a = this.indices[idxIndex];
+            var b = this.indices[idxIndex + 1];
+            var c = this.indices[idxIndex + 2];
 
             // New indices
             var d, e, f;
@@ -125,26 +125,26 @@ class LeafModel {
             // If available, then set a new index and compute midpoint,
             // Otherwise, simply retrieve the midpoint-index already there.
             if (pairAvailable(a, b)) {
-               d = this.modelInfo.positions.length / 3;
+               d = this.positions.length / 3;
                idxMap[[a, b]] = d;
                let m1 = ftn(v1, v2);
-               this.modelInfo.positions.push(...m1);
+               this.positions.push(...m1);
             }
             else d = getObjectByKey(a, b);
 
             if (pairAvailable(b, c)) {
-               e = this.modelInfo.positions.length / 3;
+               e = this.positions.length / 3;
                idxMap[[b, c]] = e;
                let m2 = ftn(v2, v3);
-               this.modelInfo.positions.push(...m2);
+               this.positions.push(...m2);
             }
             else e = getObjectByKey(b, c);
 
             if (pairAvailable(c, a)) {
-               f = this.modelInfo.positions.length / 3;
+               f = this.positions.length / 3;
                idxMap[[c, a]] = f;
                let m3 = ftn(v3, v1);
-               this.modelInfo.positions.push(...m3);
+               this.positions.push(...m3);
             }
             else f = getObjectByKey(c, a);
             
@@ -156,8 +156,8 @@ class LeafModel {
                d, e, f,
             );
          }
-         this.modelInfo.indices = newIndices;
-         this.modelInfo.normals = this.modelInfo.positions;
+         this.indices = newIndices;
+         this.normals = this.positions;
       }
    }
 }
